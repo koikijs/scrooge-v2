@@ -17,7 +17,14 @@ response (201 status)
     "createdAt": "2017-12-02T16:52:45.52",
     "updatedAt": "2017-12-02T16:52:45.52",
     "transferCurrency": "JPY",
-    "groups": [{ "scrooges": [], "members": []}],
+    "groups": [
+        {
+            "id": "...",
+            "name": "...",
+            "scrooges": [],
+            "members": []
+        }
+    ],
     "transferAmounts": []
 }
 ```
@@ -27,14 +34,24 @@ request
 ```
 {
     "name": "Koiki Camp",    ... (required)
-    "transferCurrency": "JPY"        ... (required)
 }
 ```
+
+### PATCH /events/{eventId}/groups/{groupId}/_name
+request
+```
+{
+    "name": "Koiki Camp",    ... (required)
+}
+```
+
+### DELETE /events/{eventId}/groups/{groupId}
+wip
 
 ### POST /events/{eventId}/groups/{groupId}/memberNames/{memberName}
 WIP
 
-### POST /events/{eventId}/groups/{groupId}/scrooges/{scroogeId}
+### POST /events/{eventId}/groups/{groupId}/scrooges/_add
 ```
 {
     "memberName": "Nabnab", ... (required)
