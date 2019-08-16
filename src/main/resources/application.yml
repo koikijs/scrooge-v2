@@ -1,0 +1,3 @@
+spring:
+  application.name: scrooge-v2
+  data.mongodb.database: ${spring.application.name}

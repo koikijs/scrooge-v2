@@ -2,6 +2,8 @@ package dev.koiki.scroogev2
 
 import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.EventCreateRes
+import dev.koiki.scroogev2.group.Group
+import dev.koiki.scroogev2.group.GroupRepository
 import dev.koiki.scroogev2.group.GroupRes
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.CREATED
@@ -11,12 +13,25 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Component
-class MyHandler {
+class MyHandler(
+    private val groupRepository: GroupRepository
+) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
     suspend fun createEvent(request: ServerRequest): ServerResponse {
         val req: EventCreateReq = request.awaitBody()
+
         log.info("request body: $req")
+
+        val createRes = groupRepository.create(Group(
+            name = "Test",
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
+        ))
+        log.info("create result: $createRes")
+
+        val readRes = groupRepository.read(createRes.id!!)
+        log.info("read result: $readRes")
 
         return ServerResponse
             .status(CREATED)
