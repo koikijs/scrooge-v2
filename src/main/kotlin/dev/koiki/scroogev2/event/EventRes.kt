@@ -5,8 +5,8 @@ import java.time.LocalDateTime
 import java.util.*
 
 data class EventRes(
-    val name: String,
     val id: String,
+    val name: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val groups: List<GroupRes>,

@@ -1,6 +1,5 @@
 package dev.koiki.scroogev2.group
 
-import dev.koiki.scroogev2.scrooge.Scrooge
 import dev.koiki.scroogev2.scrooge.ScroogeRes
 import java.time.LocalDateTime
 
