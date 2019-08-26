@@ -8,4 +8,12 @@ data class ScroogeRes(
     val paidAmount: BigDecimal,
     val currency: Currency,
     val forWhat: String
-)
+) {
+    constructor(scrooge: Scrooge) :
+        this(
+            memberName = scrooge.memberName,
+            paidAmount = scrooge.paidAmount,
+            currency = scrooge.currency,
+            forWhat = scrooge.forWhat
+        )
+}

@@ -1,11 +1,12 @@
 package dev.koiki.scroogev2.event
 
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
-import org.springframework.data.mongodb.core.awaitOne
+import org.springframework.data.mongodb.core.awaitOneOrNull
 import org.springframework.data.mongodb.core.oneAndAwait
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.stereotype.Component
+import java.lang.RuntimeException
 
 @Component
 class EventRepository(
@@ -16,5 +17,6 @@ class EventRepository(
     suspend fun findById(id: String): Event =
         template.query(Event::class.java)
             .matching(Query(Event::id isEqualTo id))
-            .awaitOne()
+            .awaitOneOrNull()
+            ?: throw RuntimeException("")
 }

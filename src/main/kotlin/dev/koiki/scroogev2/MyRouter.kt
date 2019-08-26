@@ -16,7 +16,7 @@ class MyRouter(val handler: MyHandler) {
             GET("/{eventId}") { handler.foo() }
             "/{eventId}".nest {
                 "/groups".nest {
-                    POST("/_add") { handler.foo() }
+                    POST("/_add") { handler.addGroup(it) }
                     "/{groupId}".nest {
                         PATCH("/_name") { handler.foo() }
                         DELETE("") { handler.foo() }

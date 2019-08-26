@@ -2,23 +2,31 @@ package dev.koiki.scroogev2
 
 import dev.koiki.scroogev2.event.Event
 import dev.koiki.scroogev2.event.EventCreateReq
-import dev.koiki.scroogev2.event.EventCreateRes
+import dev.koiki.scroogev2.event.EventRes
 import dev.koiki.scroogev2.event.EventRepository
 import dev.koiki.scroogev2.group.Group
+import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupRepository
 import dev.koiki.scroogev2.group.GroupRes
+import dev.koiki.scroogev2.scrooge.ScroogeRepository
+import dev.koiki.scroogev2.scrooge.ScroogeRes
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.CREATED
+import org.springframework.http.HttpStatus.OK
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.*
 import java.time.LocalDateTime
 import java.time.ZoneOffset.UTC
-import java.util.*
 
 @Component
 class MyHandler(
     private val eventRepository: EventRepository,
-    private val groupRepository: GroupRepository
+    private val groupRepository: GroupRepository,
+    private val scroogeRepository: ScroogeRepository,
+    private val responseFactory: ResponseFactory
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -41,7 +49,7 @@ class MyHandler(
             updatedAt = sysDateTime
         ))
 
-        val responseBody = EventCreateRes(
+        val responseBody = EventRes(
             name = eventRes.name,
             id = eventRes.id,
             createdAt = eventRes.createdAt,
@@ -62,6 +70,49 @@ class MyHandler(
         return ServerResponse
             .status(CREATED)
             .bodyAndAwait(responseBody)
+    }
+
+    @FlowPreview
+    suspend fun readEvent(request: ServerRequest): ServerResponse {
+        val eventId = request.pathVariable("eventId")
+
+        val event = eventRepository.findById(eventId)
+
+        val groupRess: List<GroupRes> = groupRepository.findByEventId(event.id!!)
+            .map { group ->
+                val scrooges: List<ScroogeRes> = scroogeRepository.findByGroupId(group.id!!)
+                    .map { scrooge -> ScroogeRes(scrooge) }
+                    .toList()
+
+                GroupRes(group, scrooges)
+            }
+            .toList()
+
+        val eventRes = EventRes(event, groupRess)
+
+        return ServerResponse
+            .status(OK)
+            .bodyAndAwait(eventRes)
+    }
+
+    suspend fun addGroup(request: ServerRequest): ServerResponse {
+        val eventId = request.pathVariable("eventId")
+        val req: GroupAddReq = request.awaitBody()
+
+        val event = eventRepository.findById(eventId)
+
+        val sysDateTime = LocalDateTime.now(UTC)
+        val res = groupRepository.create(Group(
+            name = req.name,
+            eventId = event.id!!,
+            memberNames = listOf(),
+            createdAt = sysDateTime,
+            updatedAt = sysDateTime
+        ));
+
+        return ServerResponse
+            .status(CREATED)
+            .bodyAndAwait(mapOf("groupId" to res.id!!))
     }
 
     suspend fun foo(): ServerResponse =

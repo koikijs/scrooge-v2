@@ -1,4 +1,4 @@
-package dev.koiki.scroogev2.group
+package dev.koiki.scroogev2.scrooge
 
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -10,20 +10,20 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class GroupRepository(
+class ScroogeRepository(
     private val template: ReactiveMongoTemplate
 ) {
-    suspend fun findById(id: String): Group =
-        template.query(Group::class.java)
-            .matching(Query(Group::id isEqualTo id))
+    suspend fun findById(id: String): Scrooge =
+        template.query(Scrooge::class.java)
+            .matching(Query(Scrooge::id isEqualTo id))
             .awaitOneOrNull()
             ?: throw RuntimeException("")
 
     @FlowPreview
-    suspend fun findByEventId(eventId: String): Flow<Group> =
-        template.query(Group::class.java)
-            .matching(Query(Group::eventId isEqualTo eventId))
+    suspend fun findByGroupId(groupId: String): Flow<Scrooge> =
+        template.query(Scrooge::class.java)
+            .matching(Query(Scrooge::groupId isEqualTo groupId))
             .flow()
 
-    suspend fun create(group: Group): Group = template.insert(Group::class.java).oneAndAwait(group)
+    suspend fun create(scrooge: Scrooge): Scrooge = template.insert(Scrooge::class.java).oneAndAwait(scrooge)
 }
