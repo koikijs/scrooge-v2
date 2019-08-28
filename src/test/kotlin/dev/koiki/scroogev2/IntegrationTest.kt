@@ -4,6 +4,7 @@ import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.EventRes
 import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupRes
+import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 
@@ -71,6 +73,28 @@ class IntegrationTest {
 
         assertThat(event.groups).hasSize(2)
         assertThat(event.groups[1].name).isEqualTo("ADD")
+    }
+
+    @Test
+    fun `add a scrooge`() {
+        val requestBody = ScroogeAddReq(
+            memberName = "ninja",
+            paidAmount = BigDecimal.TEN,
+            currency = Currency.getInstance("JPY"),
+            forWhat = "camp"
+        )
+
+        webTestClient.post()
+            .uri("/events/${testId.eventId}/groups/${testId.groupId}/scrooges/_add")
+            .body(requestBody)
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody<Map<String, Any>>()
+            .consumeWith {
+                assertThat(it.responseBody!!["scroogeId"]).isNotNull
+            }
+
+        // TODO
     }
 
     @Test

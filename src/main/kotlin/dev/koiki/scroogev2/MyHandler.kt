@@ -8,6 +8,8 @@ import dev.koiki.scroogev2.group.Group
 import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupRepository
 import dev.koiki.scroogev2.group.GroupRes
+import dev.koiki.scroogev2.scrooge.Scrooge
+import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import dev.koiki.scroogev2.scrooge.ScroogeRepository
 import dev.koiki.scroogev2.scrooge.ScroogeRes
 import kotlinx.coroutines.FlowPreview
@@ -113,6 +115,31 @@ class MyHandler(
         return ServerResponse
             .status(CREATED)
             .bodyAndAwait(mapOf("groupId" to res.id!!))
+    }
+
+    suspend fun addScrooge(request: ServerRequest): ServerResponse {
+        val eventId = request.pathVariable("eventId")
+        val groupId = request.pathVariable("groupId")
+        val reqBody: ScroogeAddReq = request.awaitBody()
+
+        val group = groupRepository.findById(groupId)
+
+        if (group.eventId != eventId)
+            throw RuntimeException("eee")
+        if (reqBody.memberName !in group.memberNames)
+            throw RuntimeException("ooo")
+
+        val scrooge = scroogeRepository.create(Scrooge(
+            groupId = groupId,
+            memberName = reqBody.memberName,
+            paidAmount = reqBody.paidAmount,
+            currency = reqBody.currency,
+            forWhat = reqBody.forWhat
+        ))
+
+        return ServerResponse
+            .status(CREATED)
+            .bodyAndAwait(mapOf("scroogeId" to scrooge.id))
     }
 
     suspend fun foo(): ServerResponse =

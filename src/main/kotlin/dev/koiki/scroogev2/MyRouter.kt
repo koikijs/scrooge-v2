@@ -1,5 +1,6 @@
 package dev.koiki.scroogev2
 
+import kotlinx.coroutines.FlowPreview
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.server.RouterFunction
@@ -10,6 +11,7 @@ import org.springframework.web.reactive.function.server.coRouter
 class MyRouter(val handler: MyHandler) {
 
     @Bean
+    @FlowPreview
     fun routerFunction(): RouterFunction<ServerResponse> = coRouter {
         "/events".nest {
             POST("/_create") { handler.createEvent(it) }
@@ -24,7 +26,7 @@ class MyRouter(val handler: MyHandler) {
                             POST("/{memberName}") { handler.foo() }
                         }
                         "/scrooges".nest {
-                            POST("/_add") { handler.foo() }
+                            POST("/_add") { handler.addScrooge(it) }
                         }
                     }
                 }

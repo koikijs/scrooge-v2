@@ -1,13 +1,13 @@
 package dev.koiki.scroogev2.group
 
+import com.mongodb.client.result.UpdateResult
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.toList
 import org.springframework.data.mongodb.core.*
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.isEqualTo
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
 
 @Component
 class GroupRepository(
@@ -25,5 +25,25 @@ class GroupRepository(
             .matching(Query(Group::eventId isEqualTo eventId))
             .flow()
 
-    suspend fun create(group: Group): Group = template.insert(Group::class.java).oneAndAwait(group)
+    suspend fun create(group: Group): Group =
+        template.insert(Group::class.java)
+            .oneAndAwait(group)
+
+    suspend fun addMemberNameById(id: String, memberName: String): UpdateResult =
+        template.update(Group::class.java)
+            .matching(Query(Group::id isEqualTo id))
+            .apply(Update().push("memberNames").value(memberName))
+            .firstAndAwait()
+
+    suspend fun deleteMemberNameById(id: String, memberName: String): UpdateResult =
+        template.update(Group::class.java)
+            .matching(Query(Group::id isEqualTo id))
+            .apply(Update().pull("memberNames", memberName))
+            .firstAndAwait()
+
+    suspend fun updateNameById(id: String, name: String): UpdateResult =
+        template.update(Group::class.java)
+            .matching(Query(Group::id isEqualTo id))
+            .apply(Update().set("name", name))
+            .firstAndAwait()
 }
