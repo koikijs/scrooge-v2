@@ -2,8 +2,10 @@ package dev.koiki.scroogev2
 
 import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.EventRes
+import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupRes
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,12 +17,61 @@ import org.springframework.test.web.reactive.server.expectBody
 import java.time.LocalDateTime
 import java.util.*
 
+/**
+ * This will simplify assertions.
+ * https://github.com/joel-costigliola/assertj-core/issues/1002
+ */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 class IntegrationTest {
     @Autowired
     lateinit var webTestClient: WebTestClient
+    lateinit var testId: TestId
+
+    @BeforeEach
+    fun `before each`() {
+        val requestBody = EventCreateReq(
+            name = "test",
+            transferCurrency = Currency.getInstance("JPY")
+        )
+
+        val res: EventRes = webTestClient.post()
+            .uri("/events/_create")
+            .body(requestBody)
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody<EventRes>()
+            .returnResult()
+            .responseBody ?: throw RuntimeException("response body is null")
+
+        testId = TestId(
+            eventId = res.id,
+            groupId = res.groups[0].id
+        )
+    }
+
+    @Test
+    fun `add a group`() {
+        val requestBody = GroupAddReq(
+            name = "ADD"
+        )
+
+        webTestClient.post()
+            .uri("/events/${testId.eventId}/groups/_add")
+            .body(requestBody)
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody<Map<String, Any>>()
+            .consumeWith {
+                assertThat(it.responseBody!!["groupId"]).isNotNull
+            }
+
+        val event: EventRes = fetchEvent(testId.eventId)
+
+        assertThat(event.groups).hasSize(2)
+        assertThat(event.groups[1].name).isEqualTo("ADD")
+    }
 
     @Test
     fun `create an event`() {
@@ -65,4 +116,19 @@ class IntegrationTest {
                         "id", "createdAt", "updatedAt")
             }
     }
+
+    fun fetchEvent(eventId: String): EventRes =
+        webTestClient.get()
+            .uri("/events/$eventId")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody<EventRes>()
+            .returnResult()
+            .responseBody
+            ?: throw RuntimeException("response body is null")
+
+    data class TestId(
+        val eventId: String,
+        val groupId: String
+    )
 }

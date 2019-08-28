@@ -18,7 +18,7 @@ data class EventRes(
             id = event.id!!,
             createdAt = event.createdAt,
             updatedAt = event.createdAt,
-            groups = listOf(),
+            groups = groupRess,
             transferCurrency = event.transferCurrency
         )
 }

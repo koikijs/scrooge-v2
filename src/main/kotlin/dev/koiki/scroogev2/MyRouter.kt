@@ -13,7 +13,7 @@ class MyRouter(val handler: MyHandler) {
     fun routerFunction(): RouterFunction<ServerResponse> = coRouter {
         "/events".nest {
             POST("/_create") { handler.createEvent(it) }
-            GET("/{eventId}") { handler.foo() }
+            GET("/{eventId}") { handler.readEvent(it) }
             "/{eventId}".nest {
                 "/groups".nest {
                     POST("/_add") { handler.addGroup(it) }
