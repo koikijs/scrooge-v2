@@ -4,10 +4,7 @@ import dev.koiki.scroogev2.event.Event
 import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.EventRes
 import dev.koiki.scroogev2.event.EventRepository
-import dev.koiki.scroogev2.group.Group
-import dev.koiki.scroogev2.group.GroupAddReq
-import dev.koiki.scroogev2.group.GroupRepository
-import dev.koiki.scroogev2.group.GroupRes
+import dev.koiki.scroogev2.group.*
 import dev.koiki.scroogev2.scrooge.Scrooge
 import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import dev.koiki.scroogev2.scrooge.ScroogeRepository
@@ -16,8 +13,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus.CREATED
-import org.springframework.http.HttpStatus.OK
+import org.springframework.http.HttpStatus.*
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.*
 import java.time.LocalDateTime
@@ -140,6 +136,23 @@ class MyHandler(
         return ServerResponse
             .status(CREATED)
             .bodyAndAwait(mapOf("scroogeId" to scrooge.id))
+    }
+
+    suspend fun updateGroupName(request: ServerRequest): ServerResponse {
+        val eventId = request.pathVariable("eventId")
+        val groupId = request.pathVariable("groupId")
+        val reqBody: GroupNameReq = request.awaitBody()
+
+        val group = groupRepository.findById(groupId)
+
+        if (group.eventId != eventId)
+            throw RuntimeException("eee")
+
+        groupRepository.updateNameById(groupId, reqBody.name)
+
+        return ServerResponse
+            .status(NO_CONTENT)
+            .buildAndAwait()
     }
 
     suspend fun foo(): ServerResponse =

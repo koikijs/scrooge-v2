@@ -3,6 +3,7 @@ package dev.koiki.scroogev2
 import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.EventRes
 import dev.koiki.scroogev2.group.GroupAddReq
+import dev.koiki.scroogev2.group.GroupNameReq
 import dev.koiki.scroogev2.group.GroupRes
 import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import org.assertj.core.api.Assertions.assertThat
@@ -95,6 +96,24 @@ class IntegrationTest {
             }
 
         // TODO
+    }
+
+    @Test
+    fun `update group name`() {
+        val requestBody = GroupNameReq(
+            name = "Name is updated"
+        )
+
+        webTestClient.patch()
+            .uri("/events/${testId.eventId}/groups/${testId.groupId}/_updateName")
+            .body(requestBody)
+            .exchange()
+            .expectStatus().isNoContent
+            .expectBody().isEmpty
+
+        val event = fetchEvent(testId.eventId)
+
+        assertThat(event.groups[0].name).isEqualTo("Name is updated")
     }
 
     @Test
