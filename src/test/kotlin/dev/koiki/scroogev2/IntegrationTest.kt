@@ -3,9 +3,11 @@ package dev.koiki.scroogev2
 import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.EventRes
 import dev.koiki.scroogev2.group.GroupAddReq
+import dev.koiki.scroogev2.group.GroupMemberNameReq
 import dev.koiki.scroogev2.group.GroupNameReq
 import dev.koiki.scroogev2.group.GroupRes
 import dev.koiki.scroogev2.scrooge.ScroogeAddReq
+import dev.koiki.scroogev2.scrooge.ScroogeRes
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -77,8 +79,19 @@ class IntegrationTest {
     }
 
     @Test
-    fun `add a scrooge`() {
-        val requestBody = ScroogeAddReq(
+    fun `add member to group and add scrooge to group`() {
+        val groupMemberNameReq = GroupMemberNameReq(
+            memberName = "ninja"
+        )
+        webTestClient.patch()
+            .uri("/events/${testId.eventId}/groups/${testId.groupId}/_addMemberName")
+            .body(groupMemberNameReq)
+            .exchange()
+            .expectStatus().isNoContent
+            .expectBody().isEmpty
+
+
+        val scroogeAddReq = ScroogeAddReq(
             memberName = "ninja",
             paidAmount = BigDecimal.TEN,
             currency = Currency.getInstance("JPY"),
@@ -87,7 +100,7 @@ class IntegrationTest {
 
         webTestClient.post()
             .uri("/events/${testId.eventId}/groups/${testId.groupId}/scrooges/_add")
-            .body(requestBody)
+            .body(scroogeAddReq)
             .exchange()
             .expectStatus().isCreated
             .expectBody<Map<String, Any>>()
@@ -95,7 +108,14 @@ class IntegrationTest {
                 assertThat(it.responseBody!!["scroogeId"]).isNotNull
             }
 
-        // TODO
+        val event = fetchEvent(testId.eventId)
+        assertThat(event.groups[0].scrooges[0])
+            .isEqualToIgnoringGivenFields(ScroogeRes(
+                memberName = "ninja",
+                paidAmount = BigDecimal.TEN,
+                currency = Currency.getInstance("JPY"),
+                forWhat = "camp"
+            ))
     }
 
     @Test

@@ -22,9 +22,7 @@ class MyRouter(val handler: MyHandler) {
                     "/{groupId}".nest {
                         PATCH("/_updateName") { handler.updateGroupName(it) }
                         DELETE("") { handler.foo() }
-                        "/memberNames".nest {
-                            POST("/{memberName}") { handler.foo() }
-                        }
+                        PATCH("/_addMemberName") { handler.addGroupMemberName(it) }
                         "/scrooges".nest {
                             POST("/_add") { handler.addScrooge(it) }
                         }

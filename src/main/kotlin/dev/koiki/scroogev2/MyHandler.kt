@@ -155,6 +155,23 @@ class MyHandler(
             .buildAndAwait()
     }
 
+    suspend fun addGroupMemberName(request: ServerRequest): ServerResponse {
+        val eventId = request.pathVariable("eventId")
+        val groupId = request.pathVariable("groupId")
+        val reqBody: GroupMemberNameReq = request.awaitBody()
+
+        val group = groupRepository.findById(groupId)
+
+        if (group.eventId != eventId)
+            throw RuntimeException("eee")
+
+        groupRepository.addMemberNameById(groupId, reqBody.memberName)
+
+        return ServerResponse
+            .status(NO_CONTENT)
+            .buildAndAwait()
+    }
+
     suspend fun foo(): ServerResponse =
         ServerResponse.ok()
             .bodyAndAwait(mapOf("msg" to "hello"))
