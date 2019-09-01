@@ -1,5 +1,6 @@
 package dev.koiki.scroogev2.group
 
+import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -46,4 +47,9 @@ class GroupRepository(
             .matching(Query(Group::id isEqualTo id))
             .apply(Update().set("name", name))
             .firstAndAwait()
+
+    suspend fun deleteById(id: String): DeleteResult =
+        template.remove(Group::class.java)
+            .matching(Query(Group::id isEqualTo id))
+            .allAndAwait()
 }

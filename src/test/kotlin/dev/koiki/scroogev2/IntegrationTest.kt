@@ -27,7 +27,7 @@ import java.util.*
  * https://github.com/joel-costigliola/assertj-core/issues/1002
  */
 @ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 class IntegrationTest {
     @Autowired
