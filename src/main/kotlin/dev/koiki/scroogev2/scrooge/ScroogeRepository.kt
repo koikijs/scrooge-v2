@@ -1,5 +1,6 @@
 package dev.koiki.scroogev2.scrooge
 
+import com.mongodb.client.result.DeleteResult
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
@@ -25,5 +26,12 @@ class ScroogeRepository(
             .matching(Query(Scrooge::groupId isEqualTo groupId))
             .flow()
 
-    suspend fun create(scrooge: Scrooge): Scrooge = template.insert(Scrooge::class.java).oneAndAwait(scrooge)
+    suspend fun create(scrooge: Scrooge): Scrooge =
+        template.insert(Scrooge::class.java)
+            .oneAndAwait(scrooge)
+
+    suspend fun deleteByGroupId(groupId: String): DeleteResult =
+        template.remove(Scrooge::class.java)
+            .matching(Query(Scrooge::groupId isEqualTo groupId))
+            .allAndAwait()
 }

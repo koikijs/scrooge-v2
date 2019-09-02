@@ -10,6 +10,7 @@ import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import dev.koiki.scroogev2.scrooge.ScroogeRepository
 import dev.koiki.scroogev2.scrooge.ScroogeRes
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.slf4j.LoggerFactory
@@ -23,8 +24,7 @@ import java.time.ZoneOffset.UTC
 class MyHandler(
     private val eventRepository: EventRepository,
     private val groupRepository: GroupRepository,
-    private val scroogeRepository: ScroogeRepository,
-    private val responseFactory: ResponseFactory
+    private val scroogeRepository: ScroogeRepository
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -172,7 +172,20 @@ class MyHandler(
             .buildAndAwait()
     }
 
-    suspend fun foo(): ServerResponse =
-        ServerResponse.ok()
-            .bodyAndAwait(mapOf("msg" to "hello"))
+    suspend fun deleteGroup(request: ServerRequest): ServerResponse {
+        val eventId = request.pathVariable("eventId")
+        val groupId = request.pathVariable("groupId")
+
+        val group = groupRepository.findById(groupId)
+
+        if (group.eventId != eventId)
+            throw RuntimeException("eee")
+
+        scroogeRepository.deleteByGroupId(group.id!!)
+        groupRepository.deleteById(group.id)
+
+        return ServerResponse
+            .status(NO_CONTENT)
+            .buildAndAwait()
+    }
 }

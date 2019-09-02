@@ -180,6 +180,18 @@ class IntegrationTest {
             }
     }
 
+    @Test
+    fun `delete a group`() {
+        webTestClient.delete()
+            .uri("/events/${testId.eventId}/groups/${testId.groupId}")
+            .exchange()
+            .expectStatus().isNoContent
+
+        val event = fetchEvent(testId.eventId)
+
+        assertThat(event.groups).isEmpty()
+    }
+
     fun fetchEvent(eventId: String): EventRes =
         webTestClient.get()
             .uri("/events/$eventId")
