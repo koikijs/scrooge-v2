@@ -22,6 +22,17 @@ class MyWebSocketHandler : WebSocketHandler {
     private val log = LoggerFactory.getLogger(this::class.java)
     private val sessionPoolMap = ConcurrentHashMap<String, CopyOnWriteArraySet<WebSocketSession>>()
 
+    fun testPublishMessage() {
+        log.debug("start!!")
+        sessionPoolMap
+            .entries
+            .forEach {
+                it.value.forEach {
+                    s -> s.send(Mono.just(s.textMessage("hello!!"))).subscribe()
+                }
+            }
+    }
+
     override fun handle(session: WebSocketSession): Mono<Void> {
         val eventId = session.handshakeInfo.uri.query
         log.debug("session established, sessionId: ${session.id}, eventId: $eventId")

@@ -24,7 +24,8 @@ import java.time.ZoneOffset.UTC
 class MyHandler(
     private val eventRepository: EventRepository,
     private val groupRepository: GroupRepository,
-    private val scroogeRepository: ScroogeRepository
+    private val scroogeRepository: ScroogeRepository,
+    private val myWebSocketHandler: MyWebSocketHandler
 ) {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -187,5 +188,11 @@ class MyHandler(
         return ServerResponse
             .status(NO_CONTENT)
             .buildAndAwait()
+    }
+
+    suspend fun test(request: ServerRequest): ServerResponse {
+        myWebSocketHandler.testPublishMessage()
+
+        return ServerResponse.status(NO_CONTENT).buildAndAwait()
     }
 }
