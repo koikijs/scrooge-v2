@@ -1,3 +1,5 @@
 spring:
   application.name: scrooge-v2
   data.mongodb.database: ${spring.application.name}
+logging.level:
+  dev.koiki.scroogev2: debug
