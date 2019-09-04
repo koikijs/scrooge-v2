@@ -1,11 +1,15 @@
 package dev.koiki.scroogev2
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.fasterxml.jackson.databind.ObjectMapper
+import dev.koiki.scroogev2.event.EventCreateReq
+import dev.koiki.scroogev2.event.EventRes
+import dev.koiki.scroogev2.group.GroupAddReq
+import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertAll
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
@@ -13,20 +17,14 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.returnResult
-import org.springframework.web.reactive.socket.WebSocketMessage
+import org.springframework.test.web.reactive.server.expectBody
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
-import org.springframework.web.reactive.socket.client.StandardWebSocketClient
-import reactor.core.publisher.Mono
 import reactor.core.publisher.ReplayProcessor
 import java.lang.Thread.sleep
 import java.net.URI
-import java.time.Duration
+import java.util.*
 import kotlin.concurrent.thread
 
-/**
-https://www.google.com/search?ei=NEVuXZODJ4n8wQO1k6X4Cg&q=reactive+websockethandler+integration+test&oq=reactive+websockethandler+integration+test&gs_l=psy-ab.3..33i21.14168.18137..18240...0.0..0.110.1569.16j2......0....1..gws-wiz.......0i7i30i19j0i19j0i30j0i5i30j33i160.VXP9UZNxe_4&ved=0ahUKEwiT7fm7vbTkAhUJfnAKHbVJCa8Q4dUDCAo&uact=5
- */
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -34,43 +32,67 @@ class WebSocketSimpleIntegrationTest(
     @LocalServerPort private val port: Int
 ) {
     @Autowired
-    lateinit var webTestClient: WebTestClient
-    private val webSocketClient = ReactorNettyWebSocketClient()
+    private lateinit var webTestClient: WebTestClient
+    @Autowired
+    private lateinit var mapper: ObjectMapper
 
     @Test
-    fun test() = runBlocking {
-        val eventId = "123"
+    fun webSocketTest() = runBlocking {
+        /**
+         * (1) create an event
+         */
+        val res: EventRes = webTestClient.post()
+            .uri("/events/_create")
+            .body(EventCreateReq(
+                name = "test",
+                transferCurrency = Currency.getInstance("JPY")
+            ))
+            .exchange()
+            .expectStatus().is2xxSuccessful
+            .expectBody<EventRes>()
+            .returnResult()
+            .responseBody ?: throw RuntimeException("response body is null")
 
-        val output: ReplayProcessor<String> = ReplayProcessor.create(2)
-
-        val uri = URI("ws://localhost:$port/event-emitter?$eventId")
-
+        /**
+         * (2) add a group to the event AFTER 2 sec at another thread!!
+         */
         thread {
-            println("async start")
-            sleep(2000)
-            println("delay end")
-            webTestClient.get().uri("/test").exchange().expectStatus().isNoContent
-            webTestClient.get().uri("/test").exchange().expectStatus().isNoContent
+            sleep(2_000)
+            webTestClient.post()
+                .uri("/events/${res.id}/groups/_add")
+                .body(GroupAddReq(
+                    name = "ADD"
+                ))
+                .exchange()
+                .expectStatus().is2xxSuccessful
         }
 
-        val mono = webSocketClient.execute(uri) {
+        /**
+         * (3) wait for webSocket messages, and it will come after 2 sec
+         */
+        val retrieveCnt = 1
+        val output: ReplayProcessor<String> = ReplayProcessor.create(retrieveCnt)
+        ReactorNettyWebSocketClient().execute(URI("ws://localhost:$port/event-emitter?${res.id}")) {
             it.receive()
-                .map {
-                    println("message received, $it")
-                    it.payloadAsText
-                }
-                .take(2)
+                .map { msg -> msg.payloadAsText }
+                .take(retrieveCnt.toLong())
                 .subscribeWith(output)
                 .then()
-        }.block()
+        }.subscribe()
 
-        println("here i am222")
-        println("here i am")
+        val receivedMessages: List<String> = output.collectList().awaitSingle()
 
-        val result = output.collectList().block()!!
-        assertThat(result[0]).isEqualTo("hello!!")
-        assertThat(result[1]).isEqualTo("hello!!")
+        assertAll(
+            {
+                assertThat(receivedMessages).hasSize(1)
+            },
+            {
+                assertThatCode {
+                    mapper.readValue(receivedMessages[0], EventRes::class.java)
+                }.doesNotThrowAnyException()
+            }
+        )
 
-        println("ohh")
+        return@runBlocking
     }
 }

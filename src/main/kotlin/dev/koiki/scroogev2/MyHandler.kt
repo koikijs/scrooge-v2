@@ -13,6 +13,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import org.intellij.lang.annotations.Flow
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.*
 import org.springframework.stereotype.Component
@@ -20,6 +21,7 @@ import org.springframework.web.reactive.function.server.*
 import java.time.LocalDateTime
 import java.time.ZoneOffset.UTC
 
+@FlowPreview
 @Component
 class MyHandler(
     private val eventRepository: EventRepository,
@@ -107,7 +109,9 @@ class MyHandler(
             memberNames = listOf(),
             createdAt = sysDateTime,
             updatedAt = sysDateTime
-        ));
+        ))
+
+        myWebSocketHandler.publishMessage(eventId)
 
         return ServerResponse
             .status(CREATED)

@@ -1,5 +1,10 @@
 package dev.koiki.scroogev2
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import dev.koiki.scroogev2.event.EventRes
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitSingle
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,9 +23,23 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
 
 @Component
-class MyWebSocketHandler : WebSocketHandler {
+class MyWebSocketHandler(
+    private val fetchService: FetchService,
+    private val mapper: ObjectMapper
+) : WebSocketHandler {
     private val log = LoggerFactory.getLogger(this::class.java)
     private val sessionPoolMap = ConcurrentHashMap<String, CopyOnWriteArraySet<WebSocketSession>>()
+
+    @FlowPreview
+    suspend fun publishMessage(eventId: String) {
+        val eventRes: EventRes = fetchService.readEvent(eventId)
+        val eventResJsonString: String = mapper.writeValueAsString(eventRes)
+
+        log.debug("start sending a message")
+        sessionPoolMap[eventId]?.forEach {
+            it.send(Mono.just(it.textMessage(eventResJsonString))).subscribe()
+        }
+    }
 
     fun testPublishMessage() {
         log.debug("start!!")
