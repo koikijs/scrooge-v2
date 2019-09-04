@@ -3,8 +3,6 @@ package dev.koiki.scroogev2
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.koiki.scroogev2.event.EventRes
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitSingle
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,13 +16,12 @@ import org.springframework.web.reactive.socket.server.support.HandshakeWebSocket
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
 import org.springframework.web.reactive.socket.server.upgrade.ReactorNettyRequestUpgradeStrategy
 import reactor.core.publisher.Mono
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
 
 @Component
 class MyWebSocketHandler(
-    private val fetchService: FetchService,
+    private val myService: MyService,
     private val mapper: ObjectMapper
 ) : WebSocketHandler {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -32,7 +29,7 @@ class MyWebSocketHandler(
 
     @FlowPreview
     suspend fun publishMessage(eventId: String) {
-        val eventRes: EventRes = fetchService.readEvent(eventId)
+        val eventRes: EventRes = myService.readEvent(eventId)
         val eventResJsonString: String = mapper.writeValueAsString(eventRes)
 
         log.debug("start sending a message")

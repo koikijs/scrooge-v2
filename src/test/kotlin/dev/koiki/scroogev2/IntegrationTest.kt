@@ -67,10 +67,7 @@ class IntegrationTest {
             .body(requestBody)
             .exchange()
             .expectStatus().isCreated
-            .expectBody<Map<String, Any>>()
-            .consumeWith {
-                assertThat(it.responseBody!!["groupId"]).isNotNull
-            }
+            .expectBody().isEmpty
 
         val event: EventRes = fetchEvent(testId.eventId)
 
@@ -103,10 +100,7 @@ class IntegrationTest {
             .body(scroogeAddReq)
             .exchange()
             .expectStatus().isCreated
-            .expectBody<Map<String, Any>>()
-            .consumeWith {
-                assertThat(it.responseBody!!["scroogeId"]).isNotNull
-            }
+            .expectBody().isEmpty
 
         val event = fetchEvent(testId.eventId)
         assertThat(event.groups[0].scrooges[0])

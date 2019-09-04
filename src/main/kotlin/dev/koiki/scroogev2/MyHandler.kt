@@ -24,72 +24,27 @@ import java.time.ZoneOffset.UTC
 @FlowPreview
 @Component
 class MyHandler(
-    private val eventRepository: EventRepository,
     private val groupRepository: GroupRepository,
     private val scroogeRepository: ScroogeRepository,
+    private val myService: MyService,
     private val myWebSocketHandler: MyWebSocketHandler
 ) {
-    private val log = LoggerFactory.getLogger(this::class.java)
-
     suspend fun createEvent(request: ServerRequest): ServerResponse {
         val req: EventCreateReq = request.awaitBody()
-        val sysDateTime = LocalDateTime.now(UTC)
 
-        val eventRes = eventRepository.create(Event(
-            name = req.name,
-            transferCurrency = req.transferCurrency,
-            createdAt = sysDateTime,
-            updatedAt = sysDateTime
-        ))
-
-        val groupRes = groupRepository.create(Group(
-            name = "Test",
-            eventId = eventRes.id!!,
-            memberNames = listOf(),
-            createdAt = sysDateTime,
-            updatedAt = sysDateTime
-        ))
-
-        val responseBody = EventRes(
-            name = eventRes.name,
-            id = eventRes.id,
-            createdAt = eventRes.createdAt,
-            updatedAt = eventRes.updatedAt,
-            transferCurrency = eventRes.transferCurrency,
-            groups = listOf(
-                GroupRes(
-                    id = groupRes.id!!,
-                    name = groupRes.name,
-                    scrooges = listOf(),
-                    memberNames = groupRes.memberNames,
-                    createdAt = groupRes.createdAt,
-                    updatedAt = groupRes.updatedAt
-                )
-            )
-        )
+        val event: Event = myService.createEvent(req)
+        val eventRes: EventRes = myService.readEvent(event.id!!)
 
         return ServerResponse
             .status(CREATED)
-            .bodyAndAwait(responseBody)
+            .bodyAndAwait(eventRes)
     }
 
     @FlowPreview
     suspend fun readEvent(request: ServerRequest): ServerResponse {
         val eventId = request.pathVariable("eventId")
 
-        val event = eventRepository.findById(eventId)
-
-        val groupRess: List<GroupRes> = groupRepository.findByEventId(event.id!!)
-            .map { group ->
-                val scrooges: List<ScroogeRes> = scroogeRepository.findByGroupId(group.id!!)
-                    .map { scrooge -> ScroogeRes(scrooge) }
-                    .toList()
-
-                GroupRes(group, scrooges)
-            }
-            .toList()
-
-        val eventRes = EventRes(event, groupRess)
+        val eventRes = myService.readEvent(eventId)
 
         return ServerResponse
             .status(OK)
@@ -100,44 +55,24 @@ class MyHandler(
         val eventId = request.pathVariable("eventId")
         val req: GroupAddReq = request.awaitBody()
 
-        val event = eventRepository.findById(eventId)
-
-        val sysDateTime = LocalDateTime.now(UTC)
-        val res = groupRepository.create(Group(
-            name = req.name,
-            eventId = event.id!!,
-            memberNames = listOf(),
-            createdAt = sysDateTime,
-            updatedAt = sysDateTime
-        ))
-
+        myService.addGroup(eventId, req)
         myWebSocketHandler.publishMessage(eventId)
 
         return ServerResponse
             .status(CREATED)
-            .bodyAndAwait(mapOf("groupId" to res.id!!))
+            .buildAndAwait()
     }
 
     suspend fun addScrooge(request: ServerRequest): ServerResponse {
         val groupId = request.pathVariable("groupId")
-        val reqBody: ScroogeAddReq = request.awaitBody()
+        val req: ScroogeAddReq = request.awaitBody()
 
-        val group = groupRepository.findById(groupId)
-
-        if (reqBody.memberName !in group.memberNames)
-            throw RuntimeException("ooo")
-
-        val scrooge = scroogeRepository.create(Scrooge(
-            groupId = groupId,
-            memberName = reqBody.memberName,
-            paidAmount = reqBody.paidAmount,
-            currency = reqBody.currency,
-            forWhat = reqBody.forWhat
-        ))
+        val group: Group = myService.addScrooge(groupId, req)
+        myWebSocketHandler.publishMessage(group.eventId)
 
         return ServerResponse
             .status(CREATED)
-            .bodyAndAwait(mapOf("scroogeId" to scrooge.id))
+            .buildAndAwait()
     }
 
     suspend fun updateGroupName(request: ServerRequest): ServerResponse {
