@@ -193,10 +193,4 @@ class MyHandler(
             .status(NO_CONTENT)
             .buildAndAwait()
     }
-
-    suspend fun test(request: ServerRequest): ServerResponse {
-        myWebSocketHandler.testPublishMessage()
-
-        return ServerResponse.status(NO_CONTENT).buildAndAwait()
-    }
 }

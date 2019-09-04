@@ -41,17 +41,6 @@ class MyWebSocketHandler(
         }
     }
 
-    fun testPublishMessage() {
-        log.debug("start!!")
-        sessionPoolMap
-            .entries
-            .forEach {
-                it.value.forEach {
-                    s -> s.send(Mono.just(s.textMessage("hello!!"))).subscribe()
-                }
-            }
-    }
-
     override fun handle(session: WebSocketSession): Mono<Void> {
         val eventId = session.handshakeInfo.uri.query
         log.debug("session established, sessionId: ${session.id}, eventId: $eventId")
@@ -61,7 +50,6 @@ class MyWebSocketHandler(
             .doOnNext {
                 val payload = it.payloadAsText
                 log.debug("message comes, sessionId: ${session.id}, message: $payload")
-                session.send(Mono.just(session.textMessage("hey! I am here!, $payload"))).subscribe()
             }
             .doFinally {
                 log.debug("terminated, sessionId: ${session.id}")
@@ -98,23 +86,17 @@ class WebSocketConfig(
     private val webSocketHandler: WebSocketHandler
 ) {
     @Bean
-    fun webSocketHandlerMapping(): HandlerMapping {
-        val map = HashMap<String, WebSocketHandler>()
-        map["/event-emitter"] = webSocketHandler
-
-        val handlerMapping = SimpleUrlHandlerMapping()
-        handlerMapping.order = 1
-        handlerMapping.urlMap = map
-        return handlerMapping
-    }
+    fun webSocketHandlerMapping(): HandlerMapping =
+        SimpleUrlHandlerMapping().also {
+            it.order = 1
+            it.urlMap = mapOf("/events" to webSocketHandler)
+        }
 
     @Bean
-    fun handlerAdapter(): WebSocketHandlerAdapter {
-        return WebSocketHandlerAdapter(webSocketService())
-    }
+    fun handlerAdapter(): WebSocketHandlerAdapter =
+        WebSocketHandlerAdapter(webSocketService())
 
     @Bean
-    fun webSocketService(): WebSocketService {
-        return HandshakeWebSocketService(ReactorNettyRequestUpgradeStrategy())
-    }
+    fun webSocketService(): WebSocketService =
+        HandshakeWebSocketService(ReactorNettyRequestUpgradeStrategy())
 }

@@ -72,7 +72,7 @@ class WebSocketSimpleIntegrationTest(
          */
         val retrieveCnt = 1
         val output: ReplayProcessor<String> = ReplayProcessor.create(retrieveCnt)
-        ReactorNettyWebSocketClient().execute(URI("ws://localhost:$port/event-emitter?${res.id}")) {
+        ReactorNettyWebSocketClient().execute(URI("ws://localhost:$port/events?${res.id}")) {
             it.receive()
                 .map { msg -> msg.payloadAsText }
                 .take(retrieveCnt.toLong())

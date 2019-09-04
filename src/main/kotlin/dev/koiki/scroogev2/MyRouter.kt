@@ -30,6 +30,5 @@ class MyRouter(val handler: MyHandler) {
                 }
             }
         }
-        GET("/test") { handler.test(it) }
     }
 }
