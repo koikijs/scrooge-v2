@@ -84,7 +84,7 @@ class IntegrationTest {
             memberName = "ninja"
         )
         webTestClient.patch()
-            .uri("/events/${testId.eventId}/groups/${testId.groupId}/_addMemberName")
+            .uri("/groups/${testId.groupId}/_addMemberName")
             .body(groupMemberNameReq)
             .exchange()
             .expectStatus().isNoContent
@@ -99,7 +99,7 @@ class IntegrationTest {
         )
 
         webTestClient.post()
-            .uri("/events/${testId.eventId}/groups/${testId.groupId}/scrooges/_add")
+            .uri("/groups/${testId.groupId}/scrooges/_add")
             .body(scroogeAddReq)
             .exchange()
             .expectStatus().isCreated
@@ -125,7 +125,7 @@ class IntegrationTest {
         )
 
         webTestClient.patch()
-            .uri("/events/${testId.eventId}/groups/${testId.groupId}/_updateName")
+            .uri("/groups/${testId.groupId}/_updateName")
             .body(requestBody)
             .exchange()
             .expectStatus().isNoContent
@@ -183,7 +183,7 @@ class IntegrationTest {
     @Test
     fun `delete a group`() {
         webTestClient.delete()
-            .uri("/events/${testId.eventId}/groups/${testId.groupId}")
+            .uri("/groups/${testId.groupId}")
             .exchange()
             .expectStatus().isNoContent
 

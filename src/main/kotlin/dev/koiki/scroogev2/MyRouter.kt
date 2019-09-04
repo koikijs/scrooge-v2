@@ -7,28 +7,24 @@ import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.coRouter
 
+@FlowPreview
 @Configuration
 class MyRouter(val handler: MyHandler) {
 
     @Bean
-    @FlowPreview
     fun routerFunction(): RouterFunction<ServerResponse> = coRouter {
         "/events".nest {
             POST("/_create") { handler.createEvent(it) }
             "/{eventId}".nest {
                 GET("") { handler.readEvent(it) }
-                "/groups".nest {
-                    POST("/_add") { handler.addGroup(it) }
-                    "/{groupId}".nest {
-                        PATCH("/_updateName") { handler.updateGroupName(it) }
-                        DELETE("") { handler.deleteGroup(it) }
-                        PATCH("/_addMemberName") { handler.addGroupMemberName(it) }
-                        "/scrooges".nest {
-                            POST("/_add") { handler.addScrooge(it) }
-                        }
-                    }
-                }
+                POST("/groups/_add") { handler.addGroup(it) }
             }
+        }
+        "/groups/{groupId}".nest {
+            PATCH("/_updateName") { handler.updateGroupName(it) }
+            DELETE("") { handler.deleteGroup(it) }
+            PATCH("/_addMemberName") { handler.addGroupMemberName(it) }
+            POST("/scrooges/_add") { handler.addScrooge(it) }
         }
     }
 }

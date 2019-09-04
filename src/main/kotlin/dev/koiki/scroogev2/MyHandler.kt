@@ -119,14 +119,11 @@ class MyHandler(
     }
 
     suspend fun addScrooge(request: ServerRequest): ServerResponse {
-        val eventId = request.pathVariable("eventId")
         val groupId = request.pathVariable("groupId")
         val reqBody: ScroogeAddReq = request.awaitBody()
 
         val group = groupRepository.findById(groupId)
 
-        if (group.eventId != eventId)
-            throw RuntimeException("eee")
         if (reqBody.memberName !in group.memberNames)
             throw RuntimeException("ooo")
 
@@ -144,16 +141,12 @@ class MyHandler(
     }
 
     suspend fun updateGroupName(request: ServerRequest): ServerResponse {
-        val eventId = request.pathVariable("eventId")
         val groupId = request.pathVariable("groupId")
         val reqBody: GroupNameReq = request.awaitBody()
 
         val group = groupRepository.findById(groupId)
 
-        if (group.eventId != eventId)
-            throw RuntimeException("eee")
-
-        groupRepository.updateNameById(groupId, reqBody.name)
+        groupRepository.updateNameById(group.id!!, reqBody.name)
 
         return ServerResponse
             .status(NO_CONTENT)
@@ -161,16 +154,12 @@ class MyHandler(
     }
 
     suspend fun addGroupMemberName(request: ServerRequest): ServerResponse {
-        val eventId = request.pathVariable("eventId")
         val groupId = request.pathVariable("groupId")
         val reqBody: GroupMemberNameReq = request.awaitBody()
 
         val group = groupRepository.findById(groupId)
 
-        if (group.eventId != eventId)
-            throw RuntimeException("eee")
-
-        groupRepository.addMemberNameById(groupId, reqBody.memberName)
+        groupRepository.addMemberNameById(group.id!!, reqBody.memberName)
 
         return ServerResponse
             .status(NO_CONTENT)
@@ -178,13 +167,9 @@ class MyHandler(
     }
 
     suspend fun deleteGroup(request: ServerRequest): ServerResponse {
-        val eventId = request.pathVariable("eventId")
         val groupId = request.pathVariable("groupId")
 
         val group = groupRepository.findById(groupId)
-
-        if (group.eventId != eventId)
-            throw RuntimeException("eee")
 
         scroogeRepository.deleteByGroupId(group.id!!)
         groupRepository.deleteById(group.id)
