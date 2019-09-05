@@ -1,13 +1,13 @@
 # scrooge-v2
 ## Docs
-http://localhost:8080/docs/index.html
+https://koiki-scrooge-v2.herokuapp.com/docs/index.html
 
-## Deploy to ZEIT
+## Heroku
 ```
-cd ${WORKING_DIR}
-now login
-now
+heroku config:set MAVEN_CUSTOM_GOALS="clean package" --app koiki-scrooge-v2
+heroku config:set MAVEN_CUSTOM_OPTS="-DskipTests=false" --app koiki-scrooge-v2
 ```
+- [Heroku buildpack for Java](https://github.com/heroku/heroku-buildpack-java)
 
 ## Kotlin + Coroutines + Spring Boot
 - [Going Reactive with Spring, Coroutines and Kotlin Flow](https://spring.io/blog/2019/04/12/going-reactive-with-spring-coroutines-and-kotlin-flow)
