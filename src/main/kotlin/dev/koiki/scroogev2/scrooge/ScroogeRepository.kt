@@ -34,4 +34,9 @@ class ScroogeRepository(
         template.remove(Scrooge::class.java)
             .matching(Query(Scrooge::groupId isEqualTo groupId))
             .allAndAwait()
+
+    suspend fun deleteById(id: String): DeleteResult =
+        template.remove(Scrooge::class.java)
+            .matching(Query(Scrooge::id isEqualTo id))
+            .allAndAwait()
 }

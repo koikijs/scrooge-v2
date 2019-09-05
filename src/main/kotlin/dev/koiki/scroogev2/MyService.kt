@@ -4,10 +4,7 @@ import dev.koiki.scroogev2.event.Event
 import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.EventRepository
 import dev.koiki.scroogev2.event.EventRes
-import dev.koiki.scroogev2.group.Group
-import dev.koiki.scroogev2.group.GroupAddReq
-import dev.koiki.scroogev2.group.GroupRepository
-import dev.koiki.scroogev2.group.GroupRes
+import dev.koiki.scroogev2.group.*
 import dev.koiki.scroogev2.scrooge.Scrooge
 import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import dev.koiki.scroogev2.scrooge.ScroogeRepository
@@ -17,10 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.server.ServerRequest
-import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.awaitBody
-import org.springframework.web.reactive.function.server.bodyAndAwait
+import org.springframework.web.reactive.function.server.*
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -47,7 +41,7 @@ class MyService(
         return EventRes(event, groupsRes)
     }
 
-    suspend fun createEvent(req: EventCreateReq): Event {
+    suspend fun createEvent(req: EventCreateReq): EventRes {
         val sysDateTime = LocalDateTime.now(ZoneOffset.UTC)
 
         val event: Event = eventRepository.create(Event(
@@ -58,17 +52,17 @@ class MyService(
         ))
 
         groupRepository.create(Group(
-            name = "Test",
+            name = req.name,
             eventId = event.id!!,
             memberNames = listOf(),
             createdAt = sysDateTime,
             updatedAt = sysDateTime
         ))
 
-        return event
+        return readEvent(event.id)
     }
 
-    suspend fun addGroup(eventId: String, req: GroupAddReq) {
+    suspend fun addGroup(eventId: String, req: GroupAddReq): EventRes {
         val event = eventRepository.findById(eventId)
 
         val sysDateTime = LocalDateTime.now(ZoneOffset.UTC)
@@ -80,9 +74,11 @@ class MyService(
             createdAt = sysDateTime,
             updatedAt = sysDateTime
         ))
+
+        return readEvent(event.id)
     }
 
-    suspend fun addScrooge(groupId: String, req: ScroogeAddReq): Group {
+    suspend fun addScrooge(groupId: String, req: ScroogeAddReq): EventRes {
         val group = groupRepository.findById(groupId)
 
         if (req.memberName !in group.memberNames)
@@ -96,6 +92,48 @@ class MyService(
             forWhat = req.forWhat
         ))
 
-        return group
+        return readEvent(group.eventId)
+    }
+
+    suspend fun updateGroupName(groupId: String, reqBody: GroupNameReq): EventRes {
+        val group = groupRepository.findById(groupId)
+        groupRepository.updateNameById(group.id!!, reqBody.name)
+
+        return readEvent(group.eventId)
+    }
+
+    suspend fun addGroupMemberName(groupId: String, req: GroupMemberNameReq): EventRes {
+        val group = groupRepository.findById(groupId)
+
+        groupRepository.addMemberNameById(group.id!!, req.memberName)
+
+        return readEvent(group.eventId)
+    }
+
+    suspend fun removeGroupMemberName(groupId: String, req: GroupMemberNameReq): EventRes {
+        val group = groupRepository.findById(groupId)
+
+        groupRepository.removeMemberNameById(group.id!!, req.memberName)
+        //TODO remove scrooges by groupId and memberName
+
+        return readEvent(group.eventId)
+    }
+
+    suspend fun deleteGroup(groupId: String): EventRes {
+        val group = groupRepository.findById(groupId)
+
+        scroogeRepository.deleteByGroupId(group.id!!)
+        groupRepository.deleteById(group.id)
+
+        return readEvent(group.eventId)
+    }
+
+    suspend fun deleteScrooge(scroogeId: String): EventRes {
+        val scrooge: Scrooge = scroogeRepository.findById(scroogeId)
+        val group: Group = groupRepository.findById(scrooge.groupId)
+
+        scroogeRepository.deleteById(scroogeId)
+
+        return readEvent(group.eventId)
     }
 }

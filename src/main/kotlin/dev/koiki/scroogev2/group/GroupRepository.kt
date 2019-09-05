@@ -36,7 +36,7 @@ class GroupRepository(
             .apply(Update().push("memberNames").value(memberName))
             .firstAndAwait()
 
-    suspend fun deleteMemberNameById(id: String, memberName: String): UpdateResult =
+    suspend fun removeMemberNameById(id: String, memberName: String): UpdateResult =
         template.update(Group::class.java)
             .matching(Query(Group::id isEqualTo id))
             .apply(Update().pull("memberNames", memberName))

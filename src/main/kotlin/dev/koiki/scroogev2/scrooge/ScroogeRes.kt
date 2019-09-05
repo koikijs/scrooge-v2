@@ -4,6 +4,7 @@ import java.math.BigDecimal
 import java.util.*
 
 data class ScroogeRes(
+    val id: String,
     val memberName: String,
     val paidAmount: BigDecimal,
     val currency: Currency,
@@ -11,6 +12,7 @@ data class ScroogeRes(
 ) {
     constructor(scrooge: Scrooge) :
         this(
+            id = scrooge.id!!,
             memberName = scrooge.memberName,
             paidAmount = scrooge.paidAmount,
             currency = scrooge.currency,

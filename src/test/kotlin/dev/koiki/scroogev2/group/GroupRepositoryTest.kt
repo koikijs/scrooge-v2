@@ -64,7 +64,7 @@ internal class GroupRepositoryTest {
             updatedAt = LocalDateTime.now()
         ))
 
-        groupRepository.deleteMemberNameById(id = a.id!!, memberName = "ninja")
+        groupRepository.removeMemberNameById(id = a.id!!, memberName = "ninja")
 
         val resultA = groupRepository.findById(a.id!!)
         val resultB = groupRepository.findById(b.id!!)

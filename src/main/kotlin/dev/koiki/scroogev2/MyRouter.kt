@@ -24,7 +24,11 @@ class MyRouter(val handler: MyHandler) {
             PATCH("/_updateName") { handler.updateGroupName(it) }
             DELETE("") { handler.deleteGroup(it) }
             PATCH("/_addMemberName") { handler.addGroupMemberName(it) }
+            PATCH("/_removeMemberName") { handler.removeGroupMemberName(it) }
             POST("/scrooges/_add") { handler.addScrooge(it) }
+        }
+        "/scrooges/{scroogeId}".nest {
+            DELETE("") { handler.deleteScrooge(it) }
         }
     }
 }

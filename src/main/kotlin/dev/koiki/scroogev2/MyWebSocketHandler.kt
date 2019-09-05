@@ -21,19 +21,17 @@ import java.util.concurrent.CopyOnWriteArraySet
 
 @Component
 class MyWebSocketHandler(
-    private val myService: MyService,
     private val mapper: ObjectMapper
 ) : WebSocketHandler {
     private val log = LoggerFactory.getLogger(this::class.java)
     private val sessionPoolMap = ConcurrentHashMap<String, CopyOnWriteArraySet<WebSocketSession>>()
 
     @FlowPreview
-    suspend fun publishMessage(eventId: String) {
-        val eventRes: EventRes = myService.readEvent(eventId)
+    suspend fun publishMessage(eventRes: EventRes) {
         val eventResJsonString: String = mapper.writeValueAsString(eventRes)
 
         log.debug("start sending a message")
-        sessionPoolMap[eventId]?.forEach {
+        sessionPoolMap[eventRes.id]?.forEach {
             it.send(Mono.just(it.textMessage(eventResJsonString))).subscribe()
         }
     }
@@ -93,7 +91,6 @@ class WebSocketConfig(
     fun handlerAdapter(): WebSocketHandlerAdapter =
         WebSocketHandlerAdapter(webSocketService())
 
-    @Bean
-    fun webSocketService(): WebSocketService =
+    private fun webSocketService(): WebSocketService =
         HandshakeWebSocketService(ReactorNettyRequestUpgradeStrategy())
 }

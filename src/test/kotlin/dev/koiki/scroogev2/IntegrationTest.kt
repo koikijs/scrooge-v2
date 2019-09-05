@@ -102,14 +102,62 @@ class IntegrationTest {
             .expectStatus().isCreated
             .expectBody().isEmpty
 
-        val event = fetchEvent(testId.eventId)
+        // confirm addition of scrooge
+        var event = fetchEvent(testId.eventId)
         assertThat(event.groups[0].scrooges[0])
             .isEqualToIgnoringGivenFields(ScroogeRes(
+                id = "xxx",
                 memberName = "ninja",
                 paidAmount = BigDecimal.TEN,
                 currency = Currency.getInstance("JPY"),
                 forWhat = "camp"
+            ), "id")
+
+        webTestClient.delete()
+            .uri("/scrooges/${event.groups[0].scrooges[0].id}")
+            .exchange()
+            .expectStatus().isNoContent
+            .expectBody().isEmpty
+
+        // confirm removal of scrooge
+        event = fetchEvent(testId.eventId)
+        assertThat(event.groups[0].scrooges).isEmpty()
+    }
+
+    @Test
+    fun `add member to group and remove member from group`() {
+        webTestClient.patch()
+            .uri("/groups/${testId.groupId}/_addMemberName")
+            .body(GroupMemberNameReq(
+                memberName = "ninja"
             ))
+            .exchange()
+            .expectStatus().isNoContent
+            .expectBody().isEmpty
+
+        webTestClient.patch()
+            .uri("/groups/${testId.groupId}/_addMemberName")
+            .body(GroupMemberNameReq(
+                memberName = "nabnab"
+            ))
+            .exchange()
+            .expectStatus().isNoContent
+            .expectBody().isEmpty
+
+        var event = fetchEvent(testId.eventId)
+        assertThat(event.groups[0].memberNames).isEqualTo(listOf("ninja", "nabnab"))
+
+        webTestClient.patch()
+            .uri("/groups/${testId.groupId}/_removeMemberName")
+            .body(GroupMemberNameReq(
+                memberName = "ninja"
+            ))
+            .exchange()
+            .expectStatus().isNoContent
+            .expectBody().isEmpty
+
+        event = fetchEvent(testId.eventId)
+        assertThat(event.groups[0].memberNames).isEqualTo(listOf("nabnab"))
     }
 
     @Test
@@ -133,19 +181,19 @@ class IntegrationTest {
     @Test
     fun `create an event`() {
         val requestBody = EventCreateReq(
-            name = "test",
+            name = "Camp 2019",
             transferCurrency = Currency.getInstance("JPY")
         )
 
         val expectedBody = EventRes(
             id = "xxx",
-            name = "test",
+            name = "Camp 2019",
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             groups = listOf(
                 GroupRes(
                     id = "xxx",
-                    name = "Test",
+                    name = "Camp 2019",
                     memberNames = listOf(),
                     scrooges = listOf(),
                     createdAt = LocalDateTime.now(),
