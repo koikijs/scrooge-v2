@@ -55,7 +55,7 @@ include::{snippets}/group-add/http-response.adoc[]
 
 
 
-=== POST /groups/{groupId}/_updateName
+=== PATCH /groups/{groupId}/_updateName
 
 ==== Request
 
@@ -121,7 +121,7 @@ include::{snippets}/group-memberName-remove/http-response.adoc[]
 
 
 == Scrooge Domain
-=== POST /groups/{groupId}/scrooges/_add
+=== POST /groups/{groupId}/scrooges
 
 ==== Request
 
@@ -138,7 +138,7 @@ include::{snippets}/scrooge-add/http-response.adoc[]
 
 
 
-=== DELETE /scrooges/_add
+=== DELETE /scrooges/{scroogeId}
 
 ==== Request
 

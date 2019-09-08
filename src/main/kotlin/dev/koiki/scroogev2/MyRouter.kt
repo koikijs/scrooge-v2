@@ -28,7 +28,7 @@ class MyRouter(val handler: MyHandler) {
             DELETE("") { handler.deleteGroup(it) }
             PATCH("/_addMemberName") { handler.addGroupMemberName(it) }
             PATCH("/_removeMemberName") { handler.removeGroupMemberName(it) }
-            POST("/scrooges/_add") { handler.addScrooge(it) }
+            POST("/scrooges") { handler.addScrooge(it) }
         }
         "/scrooges/{scroogeId}".nest {
             DELETE("") { handler.deleteScrooge(it) }
@@ -37,7 +37,6 @@ class MyRouter(val handler: MyHandler) {
 }
 
 @Configuration
-@EnableWebFlux
 class MyCorsConfig : WebFluxConfigurer {
 
     override fun addCorsMappings(corsRegistry: CorsRegistry) {

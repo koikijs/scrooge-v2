@@ -76,7 +76,7 @@ class RestDocsTest(
 
         this.webTestClient
             .post()
-            .uri("/groups/${event.groups[0].id}/scrooges/_add")
+            .uri("/groups/${event.groups[0].id}/scrooges")
             .body(ScroogeAddReq(
                 memberName = "Ninja",
                 paidAmount = BigDecimal("1100"),
@@ -225,7 +225,7 @@ class RestDocsTest(
     fun addScrooge() {
         this.webTestClient
             .post()
-            .uri("/groups/${testId.groupId}/scrooges/_add")
+            .uri("/groups/${testId.groupId}/scrooges")
             .body(ScroogeAddReq(
                 memberName = "Ninja",
                 paidAmount = BigDecimal("11000"),

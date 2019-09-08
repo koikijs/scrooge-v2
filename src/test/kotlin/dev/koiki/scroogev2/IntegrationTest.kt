@@ -97,7 +97,7 @@ class IntegrationTest {
         )
 
         webTestClient.post()
-            .uri("/groups/${testId.groupId}/scrooges/_add")
+            .uri("/groups/${testId.groupId}/scrooges")
             .body(scroogeAddReq)
             .exchange()
             .expectStatus().isCreated
