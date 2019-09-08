@@ -17,6 +17,8 @@ include::{snippets}/event-create/request-fields.adoc[]
 ==== Sample
 include::{snippets}/event-create/http-response.adoc[]
 
+
+
 == GET /events/{eventId}
 
 === Request
@@ -28,6 +30,8 @@ include::{snippets}/event-read/http-request.adoc[]
 
 ==== Sample
 include::{snippets}/event-read/http-response.adoc[]
+
+
 
 == POST /events/{eventId}/groups/_add
 
@@ -43,6 +47,37 @@ include::{snippets}/group-add/request-fields.adoc[]
 
 ==== Sample
 include::{snippets}/group-add/http-response.adoc[]
+
+
+
+== POST /groups/{groupId}/_updateName
+
+=== Request
+
+==== Sample
+include::{snippets}/group-name-update/http-request.adoc[]
+
+==== Desc
+include::{snippets}/group-name-update/request-fields.adoc[]
+
+=== Response
+
+==== Sample
+include::{snippets}/group-name-update/http-response.adoc[]
+
+
+
+== DELETE /groups/{groupId}
+
+=== Request
+
+==== Sample
+include::{snippets}/group-delete/http-request.adoc[]
+
+=== Response
+
+==== Sample
+include::{snippets}/group-delete/http-response.adoc[]
 
 == Error Response
 WIP

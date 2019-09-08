@@ -4,6 +4,7 @@ import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.EventRes
 import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupMemberNameReq
+import dev.koiki.scroogev2.group.GroupNameReq
 import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -141,6 +142,36 @@ class RestDocsTest(
                         .description("Not Null, group name")
                     )
             ))
+    }
+
+    @Test
+    fun updateGroupName() {
+        this.webTestClient
+            .patch()
+            .uri("/groups/${testId.groupId}/_updateName")
+            .body(GroupNameReq(
+                name = "BBQ"
+            ))
+            .exchange()
+            .expectStatus().is2xxSuccessful
+            .expectBody()
+            .consumeWith(document("group-name-update",
+                requestFields(
+                    fieldWithPath("name")
+                        .description("Not Null, group name")
+                )
+            ))
+    }
+
+    @Test
+    fun deleteGroup() {
+        this.webTestClient
+            .delete()
+            .uri("/groups/${testId.groupId}")
+            .exchange()
+            .expectStatus().is2xxSuccessful
+            .expectBody()
+            .consumeWith(document("group-delete"))
     }
 
     data class TestId(
