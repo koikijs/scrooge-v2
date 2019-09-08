@@ -2,6 +2,7 @@ package dev.koiki.scroogev2
 
 import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.EventRes
+import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupMemberNameReq
 import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import org.junit.jupiter.api.BeforeEach
@@ -121,6 +122,25 @@ class RestDocsTest(
             .expectStatus().is2xxSuccessful
             .expectBody()
             .consumeWith(document("event-read"))
+    }
+
+    @Test
+    fun addGroup() {
+        this.webTestClient
+            .post()
+            .uri("/events/${testId.eventId}/groups/_add")
+            .body(GroupAddReq(
+                name = "Scuba diving"
+            ))
+            .exchange()
+            .expectStatus().is2xxSuccessful
+            .expectBody()
+            .consumeWith(document("group-add",
+                requestFields(
+                    fieldWithPath("name")
+                        .description("Not Null, group name")
+                    )
+            ))
     }
 
     data class TestId(

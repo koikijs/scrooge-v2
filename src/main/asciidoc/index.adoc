@@ -15,7 +15,7 @@ include::{snippets}/event-create/request-fields.adoc[]
 === Response
 
 ==== Sample
-include::{snippets}/event-create/response-body.adoc[]
+include::{snippets}/event-create/http-response.adoc[]
 
 == GET /events/{eventId}
 
@@ -27,7 +27,22 @@ include::{snippets}/event-read/http-request.adoc[]
 === Response
 
 ==== Sample
-include::{snippets}/event-read/response-body.adoc[]
+include::{snippets}/event-read/http-response.adoc[]
+
+== POST /events/{eventId}/groups/_add
+
+=== Request
+
+==== Sample
+include::{snippets}/group-add/http-request.adoc[]
+
+==== Desc
+include::{snippets}/group-add/request-fields.adoc[]
+
+=== Response
+
+==== Sample
+include::{snippets}/group-add/http-response.adoc[]
 
 == Error Response
 WIP
