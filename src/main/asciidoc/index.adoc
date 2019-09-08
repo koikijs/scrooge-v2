@@ -116,6 +116,38 @@ include::{snippets}/group-memberName-remove/request-fields.adoc[]
 include::{snippets}/group-memberName-remove/http-response.adoc[]
 
 
+
+== Scrooge Domain
+=== POST /groups/{groupId}/scrooges/_add
+
+==== Request
+
+====== Sample
+include::{snippets}/scrooge-add/http-request.adoc[]
+
+====== Desc
+include::{snippets}/scrooge-add/request-fields.adoc[]
+
+==== Response
+
+====== Sample
+include::{snippets}/scrooge-add/http-response.adoc[]
+
+
+
+=== DELETE /scrooges/_add
+
+==== Request
+
+====== Sample
+include::{snippets}/scrooge-delete/http-request.adoc[]
+
+==== Response
+
+====== Sample
+include::{snippets}/scrooge-delete/http-response.adoc[]
+
+
 == Others
 === Error Response
 WIP

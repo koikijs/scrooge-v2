@@ -60,7 +60,7 @@ class RestDocsTest(
             .patch()
             .uri("/groups/${event.groups[0].id}/_addMemberName")
             .body(GroupMemberNameReq(
-                memberName = "ninja"
+                memberName = "Ninja"
             ))
             .exchange()
             .expectStatus().is2xxSuccessful
@@ -69,7 +69,7 @@ class RestDocsTest(
             .post()
             .uri("/groups/${event.groups[0].id}/scrooges/_add")
             .body(ScroogeAddReq(
-                memberName = "ninja",
+                memberName = "Ninja",
                 paidAmount = BigDecimal("1100"),
                 currency = Currency.getInstance("JPY"),
                 forWhat = "rent-a-car"
@@ -210,6 +210,45 @@ class RestDocsTest(
                         .description("Not Null, member name")
                 )
             ))
+    }
+
+    @Test
+    fun addScrooge() {
+        this.webTestClient
+            .post()
+            .uri("/groups/${testId.groupId}/scrooges/_add")
+            .body(ScroogeAddReq(
+                memberName = "Ninja",
+                paidAmount = BigDecimal("11000"),
+                currency = Currency.getInstance("JPY"),
+                forWhat = "parking"
+            ))
+            .exchange()
+            .expectStatus().is2xxSuccessful
+            .expectBody()
+            .consumeWith(document("scrooge-add",
+                requestFields(
+                    fieldWithPath("memberName")
+                        .description("Not Null, member name"),
+                    fieldWithPath("paidAmount")
+                        .description("Not Null, paid amount by member"),
+                    fieldWithPath("currency")
+                        .description("Not Null, currency code of ISO 4217"),
+                    fieldWithPath("forWhat")
+                        .description("Not Null, memo")
+                )
+            ))
+    }
+
+    @Test
+    fun deleteScrooge() {
+        this.webTestClient
+            .delete()
+            .uri("/scrooges/${testId.scroogeId}")
+            .exchange()
+            .expectStatus().is2xxSuccessful
+            .expectBody()
+            .consumeWith(document("scrooge-delete"))
     }
 
     data class TestId(
