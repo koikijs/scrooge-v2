@@ -66,6 +66,15 @@ class RestDocsTest(
             .expectStatus().is2xxSuccessful
 
         this.webTestClient
+            .patch()
+            .uri("/groups/${event.groups[0].id}/_addMemberName")
+            .body(GroupMemberNameReq(
+                memberName = "Nabnab"
+            ))
+            .exchange()
+            .expectStatus().is2xxSuccessful
+
+        this.webTestClient
             .post()
             .uri("/groups/${event.groups[0].id}/scrooges/_add")
             .body(ScroogeAddReq(

@@ -26,6 +26,7 @@ import java.util.*
  * This will simplify assertions.
  * https://github.com/joel-costigliola/assertj-core/issues/1002
  */
+//TODO add readEvent test to confirm transferAmounts[]
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
@@ -196,6 +197,7 @@ class IntegrationTest {
                     name = "Camp 2019",
                     memberNames = listOf(),
                     scrooges = listOf(),
+                    transferAmounts = listOf(),
                     createdAt = LocalDateTime.now(),
                     updatedAt = LocalDateTime.now()
                 )

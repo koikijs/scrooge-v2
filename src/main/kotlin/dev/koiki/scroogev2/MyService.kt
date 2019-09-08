@@ -9,6 +9,7 @@ import dev.koiki.scroogev2.scrooge.Scrooge
 import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import dev.koiki.scroogev2.scrooge.ScroogeRepository
 import dev.koiki.scroogev2.scrooge.ScroogeRes
+import dev.koiki.scroogev2.transferamount.TransferAmountFactory
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -23,7 +24,8 @@ import java.time.ZoneOffset
 class MyService(
     private val eventRepository: EventRepository,
     private val groupRepository: GroupRepository,
-    private val scroogeRepository: ScroogeRepository
+    private val scroogeRepository: ScroogeRepository,
+    private val transferAmountFactory: TransferAmountFactory
 ) {
     suspend fun readEvent(eventId: String): EventRes {
         val event = eventRepository.findById(eventId)
@@ -34,7 +36,9 @@ class MyService(
                     .map { scrooge -> ScroogeRes(scrooge) }
                     .toList()
 
-                GroupRes(group, scrooges)
+                val transferAmounts = transferAmountFactory.create(scrooges, group.memberNames)
+
+                GroupRes(group, scrooges, transferAmounts)
             }
             .toList()
 

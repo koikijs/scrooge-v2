@@ -2,6 +2,9 @@
 :toc: left
 :toclevels: 2
 
+== WebSocket
+URI of WebSocket is `wss://koiki-scrooge-v2.herokuapp.com/events?{eventId}`.
+
 == Event Domain
 === POST /events/_create
 
