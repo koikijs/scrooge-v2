@@ -1,83 +1,121 @@
 = Scrooge V2 API
 :toc: left
-:toclevels: 1
+:toclevels: 2
 
-== POST /events/_create
+== Event Domain
+=== POST /events/_create
 
-=== Request
+==== Request
 
-==== Sample
+====== Sample
 include::{snippets}/event-create/http-request.adoc[]
 
-==== Desc
+====== Desc
 include::{snippets}/event-create/request-fields.adoc[]
 
-=== Response
+==== Response
 
-==== Sample
+====== Sample
 include::{snippets}/event-create/http-response.adoc[]
 
 
 
-== GET /events/{eventId}
+=== GET /events/{eventId}
 
-=== Request
+==== Request
 
-==== Sample
+====== Sample
 include::{snippets}/event-read/http-request.adoc[]
 
-=== Response
+==== Response
 
-==== Sample
+====== Sample
 include::{snippets}/event-read/http-response.adoc[]
 
 
 
-== POST /events/{eventId}/groups/_add
+== Group Domain
+=== POST /events/{eventId}/groups/_add
 
-=== Request
+==== Request
 
-==== Sample
+====== Sample
 include::{snippets}/group-add/http-request.adoc[]
 
-==== Desc
+====== Desc
 include::{snippets}/group-add/request-fields.adoc[]
 
-=== Response
+==== Response
 
-==== Sample
+====== Sample
 include::{snippets}/group-add/http-response.adoc[]
 
 
 
-== POST /groups/{groupId}/_updateName
+=== POST /groups/{groupId}/_updateName
 
-=== Request
+==== Request
 
-==== Sample
+====== Sample
 include::{snippets}/group-name-update/http-request.adoc[]
 
-==== Desc
+====== Desc
 include::{snippets}/group-name-update/request-fields.adoc[]
 
-=== Response
+==== Response
 
-==== Sample
+====== Sample
 include::{snippets}/group-name-update/http-response.adoc[]
 
 
 
-== DELETE /groups/{groupId}
+=== DELETE /groups/{groupId}
 
-=== Request
+==== Request
 
-==== Sample
+====== Sample
 include::{snippets}/group-delete/http-request.adoc[]
 
-=== Response
+==== Response
 
-==== Sample
+====== Sample
 include::{snippets}/group-delete/http-response.adoc[]
 
-== Error Response
+
+
+=== PATCH /groups/{groupId}/_addMemberName
+
+==== Request
+
+====== Sample
+include::{snippets}/group-memberName-add/http-request.adoc[]
+
+====== Desc
+include::{snippets}/group-memberName-add/request-fields.adoc[]
+
+==== Response
+
+====== Sample
+include::{snippets}/group-memberName-add/http-response.adoc[]
+
+
+
+=== PATCH /groups/{groupId}/_removeMemberName
+
+==== Request
+
+====== Sample
+include::{snippets}/group-memberName-remove/http-request.adoc[]
+
+====== Desc
+include::{snippets}/group-memberName-remove/request-fields.adoc[]
+
+==== Response
+
+====== Sample
+include::{snippets}/group-memberName-remove/http-response.adoc[]
+
+
+== Others
+=== Error Response
 WIP

@@ -174,6 +174,44 @@ class RestDocsTest(
             .consumeWith(document("group-delete"))
     }
 
+    @Test
+    fun addMemberName() {
+        this.webTestClient
+            .patch()
+            .uri("/groups/${testId.groupId}/_addMemberName")
+            .body(GroupMemberNameReq(
+                memberName = "Ninja"
+            ))
+            .exchange()
+            .expectStatus().is2xxSuccessful
+            .expectBody()
+            .consumeWith(document("group-memberName-add",
+                requestFields(
+                    fieldWithPath("memberName")
+                        .description("Not Null, member name")
+                )
+            ))
+    }
+
+    @Test
+    fun removeMemberName() {
+        this.webTestClient
+            .patch()
+            .uri("/groups/${testId.groupId}/_removeMemberName")
+            .body(GroupMemberNameReq(
+                memberName = "Ninja"
+            ))
+            .exchange()
+            .expectStatus().is2xxSuccessful
+            .expectBody()
+            .consumeWith(document("group-memberName-remove",
+                requestFields(
+                    fieldWithPath("memberName")
+                        .description("Not Null, member name")
+                )
+            ))
+    }
+
     data class TestId(
         val eventId: String,
         val groupId: String,
