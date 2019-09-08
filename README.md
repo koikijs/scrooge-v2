@@ -1,6 +1,6 @@
 # scrooge-v2
 ## Docs
-https://koiki-scrooge-v2.herokuapp.com/docs/index.html
+https://koiki-scrooge-v2.herokuapp.com/docs/index.html 
 
 ## Heroku
 ```

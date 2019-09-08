@@ -1,6 +1,5 @@
 package dev.koiki.scroogev2.scrooge
 
-import org.springframework.data.annotation.Id
 import java.math.BigDecimal
 import java.util.*
 

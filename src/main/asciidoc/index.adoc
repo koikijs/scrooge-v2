@@ -1,6 +1,6 @@
 = Scrooge V2 API
 :toc: left
-:toclevels: 3
+:toclevels: 1
 
 == POST /events/_create
 
@@ -16,6 +16,18 @@ include::{snippets}/event-create/request-fields.adoc[]
 
 ==== Sample
 include::{snippets}/event-create/response-body.adoc[]
+
+== GET /events/{eventId}
+
+=== Request
+
+==== Sample
+include::{snippets}/event-read/http-request.adoc[]
+
+=== Response
+
+==== Sample
+include::{snippets}/event-read/response-body.adoc[]
 
 == Error Response
 WIP

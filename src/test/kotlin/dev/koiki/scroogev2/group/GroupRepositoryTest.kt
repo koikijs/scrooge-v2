@@ -114,14 +114,6 @@ internal class GroupRepositoryTest {
             updatedAt = LocalDateTime.now()
         ))
 
-        val b = groupRepository.create(Group(
-            eventId = "xxx",
-            name = "testB",
-            memberNames = listOf("nabnab", "ninja"),
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
-        ))
-
         val result = groupRepository.deleteById(id = a.id!!)
 
         assertAll(

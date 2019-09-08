@@ -1,6 +1,9 @@
 package dev.koiki.scroogev2
 
 import dev.koiki.scroogev2.event.EventCreateReq
+import dev.koiki.scroogev2.event.EventRes
+import dev.koiki.scroogev2.group.GroupMemberNameReq
+import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -8,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
-import org.springframework.restdocs.operation.preprocess.Preprocessors
 import org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
@@ -16,7 +18,8 @@ import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation
 import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.documentationConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.reactive.function.BodyInserters.fromObject
+import org.springframework.test.web.reactive.server.expectBody
+import java.math.BigDecimal
 import java.util.*
 
 @ExtendWith(SpringExtension::class, RestDocumentationExtension::class)
@@ -25,10 +28,10 @@ class RestDocsTest(
     private val context: ApplicationContext
 ) {
     private lateinit var webTestClient: WebTestClient
+    private lateinit var testId: TestId
 
     @BeforeEach
     fun setup(restDocumentation: RestDocumentationContextProvider) {
-
         this.webTestClient = WebTestClient
             .bindToApplicationContext(context)
             .configureClient()
@@ -38,6 +41,53 @@ class RestDocsTest(
                 .withResponseDefaults(prettyPrint())
             )
             .build()
+
+        val event = this.webTestClient
+            .post()
+            .uri("/events/_create")
+            .body(EventCreateReq(
+                name = "Koiki Camp",
+                transferCurrency = Currency.getInstance("JPY")
+            ))
+            .exchange()
+            .expectBody<EventRes>()
+            .returnResult()
+            .responseBody ?: throw RuntimeException("response body is null")
+
+        this.webTestClient
+            .patch()
+            .uri("/groups/${event.groups[0].id}/_addMemberName")
+            .body(GroupMemberNameReq(
+                memberName = "ninja"
+            ))
+            .exchange()
+            .expectStatus().is2xxSuccessful
+
+        this.webTestClient
+            .post()
+            .uri("/groups/${event.groups[0].id}/scrooges/_add")
+            .body(ScroogeAddReq(
+                memberName = "ninja",
+                paidAmount = BigDecimal("1100"),
+                currency = Currency.getInstance("JPY"),
+                forWhat = "rent-a-car"
+            ))
+            .exchange()
+            .expectStatus().is2xxSuccessful
+
+        val event2 = this.webTestClient
+            .get()
+            .uri("/events/${event.id}")
+            .exchange()
+            .expectBody<EventRes>()
+            .returnResult()
+            .responseBody ?: throw RuntimeException("response body is null")
+
+        this.testId = TestId(
+            eventId = event2.id,
+            groupId = event2.groups[0].id,
+            scroogeId = event2.groups[0].scrooges[0].id
+        )
     }
 
     @Test
@@ -45,10 +95,10 @@ class RestDocsTest(
         this.webTestClient
             .post()
             .uri("/events/_create")
-            .body(fromObject(EventCreateReq(
+            .body(EventCreateReq(
                 name = "Koiki Camp",
                 transferCurrency = Currency.getInstance("JPY")
-            )))
+            ))
             .exchange()
             .expectStatus().isCreated
             .expectBody()
@@ -61,4 +111,21 @@ class RestDocsTest(
                 )
             ))
     }
+
+    @Test
+    fun readEvent() {
+        this.webTestClient
+            .get()
+            .uri("/events/${testId.eventId}")
+            .exchange()
+            .expectStatus().is2xxSuccessful
+            .expectBody()
+            .consumeWith(document("event-read"))
+    }
+
+    data class TestId(
+        val eventId: String,
+        val groupId: String,
+        val scroogeId: String
+    )
 }
