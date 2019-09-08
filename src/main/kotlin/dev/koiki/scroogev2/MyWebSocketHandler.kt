@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
+import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.reactive.HandlerMapping
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping
 import org.springframework.web.reactive.socket.WebSocketHandler
@@ -85,6 +86,12 @@ class WebSocketConfig(
         SimpleUrlHandlerMapping().also {
             it.order = 1
             it.urlMap = mapOf("/events" to webSocketHandler)
+            it.setCorsConfigurations(mapOf(
+                "/**" to CorsConfiguration().also { cors ->
+                    //TODO optimize it
+                    cors.allowedOrigins = listOf("https://kyoden.now.sh", "http://localhost:3000")
+                }
+            ))
         }
 
     @Bean

@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.coRouter
+import org.springframework.web.reactive.config.CorsRegistry
+import org.springframework.web.reactive.config.WebFluxConfigurer
+import org.springframework.web.reactive.config.EnableWebFlux
 
 @FlowPreview
 @Configuration
@@ -30,5 +33,19 @@ class MyRouter(val handler: MyHandler) {
         "/scrooges/{scroogeId}".nest {
             DELETE("") { handler.deleteScrooge(it) }
         }
+    }
+}
+
+@Configuration
+@EnableWebFlux
+class MyCorsConfig : WebFluxConfigurer {
+
+    override fun addCorsMappings(corsRegistry: CorsRegistry) {
+        corsRegistry.addMapping("/**")
+            .allowedOrigins("https://kyoden.now.sh", "http://localhost:3000")
+            .allowedMethods("*")
+            .allowCredentials(true)
+            .allowedHeaders("Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location")
+            .exposedHeaders("Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location")
     }
 }
