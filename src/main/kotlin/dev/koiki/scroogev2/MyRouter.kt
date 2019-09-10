@@ -3,17 +3,12 @@ package dev.koiki.scroogev2
 import kotlinx.coroutines.FlowPreview
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.reactive.CorsWebFilter
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
 import org.springframework.web.reactive.function.server.RouterFunction
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.coRouter
-import org.springframework.web.reactive.config.CorsRegistry
-import org.springframework.web.reactive.config.WebFluxConfigurer
-import org.springframework.web.reactive.config.EnableWebFlux
-import org.springframework.web.cors.reactive.CorsWebFilter
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
-import java.util.*
-
 
 @FlowPreview
 @Configuration
@@ -43,31 +38,27 @@ class MyRouter(val handler: MyHandler) {
 
 @Configuration
 class CorsConfig {
+
     @Bean
     fun corsWebFilter(): CorsWebFilter {
-        val corsConfig = CorsConfiguration()
-        corsConfig.allowedOrigins = Arrays.asList("https://kyoden.now.sh", "http://localhost:3000")
-        corsConfig.maxAge = 8000L
-        corsConfig.addAllowedMethod("*")
-        corsConfig.allowedHeaders = listOf("Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location")
-        corsConfig.exposedHeaders = listOf("Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location")
-        corsConfig.allowCredentials = true
-        val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", corsConfig)
+        val headers = listOf(
+            "Cache-Control", "Content-Language", "Content-Type",
+            "Expires", "Last-Modified", "Pragma", "Location"
+        )
+
+        val corsConfig = CorsConfiguration().apply {
+            allowedOrigins = listOf("https://kyoden.now.sh", "http://localhost:3000")
+            maxAge = 8000L
+            addAllowedMethod("*")
+            allowedHeaders = headers
+            exposedHeaders = headers
+            allowCredentials = true
+        }
+
+        val source = UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/**", corsConfig)
+        }
 
         return CorsWebFilter(source)
-    }
-}
-
-//@Configuration
-class MyCorsConfig : WebFluxConfigurer {
-
-    override fun addCorsMappings(corsRegistry: CorsRegistry) {
-        corsRegistry.addMapping("/**")
-            .allowedOrigins("https://kyoden.now.sh", "http://localhost:3000")
-            .allowedMethods("*")
-            .allowCredentials(true)
-            .allowedHeaders("Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location")
-            .exposedHeaders("Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location")
     }
 }
