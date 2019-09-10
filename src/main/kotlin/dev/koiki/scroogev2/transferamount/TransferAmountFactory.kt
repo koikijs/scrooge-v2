@@ -1,6 +1,6 @@
 package dev.koiki.scroogev2.transferamount
 
-import dev.koiki.scroogev2.scrooge.ScroogeRes
+import dev.koiki.scroogev2.scrooge.Scrooge
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.util.*
@@ -8,19 +8,19 @@ import java.util.stream.Collectors
 
 @Component
 class TransferAmountFactory {
-    fun create(scroogeRes: List<ScroogeRes>, memberNames: List<String>): List<TransferAmount> {
-        if (scroogeRes.isEmpty())
+    fun create(scrooges: List<Scrooge>, memberNames: List<String>): List<TransferAmount> {
+        if (scrooges.isEmpty())
             return listOf()
 
         val membersWhoDoNotPayMoney: List<String> = memberNames
             .filter { memberName ->
-                scroogeRes.find { it.memberName != memberName } != null
+                scrooges.find { it.memberName != memberName } != null
             }
             .toList()
 
-        val dummyScroogeRes: List<ScroogeRes> = membersWhoDoNotPayMoney
+        val dummyScrooges: List<Scrooge> = membersWhoDoNotPayMoney
             .map {
-                ScroogeRes(
+                Scrooge(
                     id = "",
                     memberName = it,
                     paidAmount = BigDecimal.ZERO,
@@ -29,20 +29,20 @@ class TransferAmountFactory {
                 )
             }
 
-        val scrooges = scroogeRes.plus(dummyScroogeRes)
+        val totalScrooges = scrooges.plus(dummyScrooges)
 
-        val totalAmount: BigDecimal = scrooges
+        val totalAmount: BigDecimal = totalScrooges
             .map { it.paidAmount }
             .reduce { acc, paidAmount -> acc + paidAmount }
 
-        val paidAmountPerMember: Map<String, BigDecimal> = scrooges
+        val paidAmountPerMember: Map<String, BigDecimal> = totalScrooges
             .stream()
             .collect(
                 Collectors.groupingBy(
                     { it.memberName },
                     Collectors.reducing(
                         BigDecimal.ZERO,
-                        ScroogeRes::paidAmount,
+                        Scrooge::paidAmount,
                         BigDecimal::add)
                 )
             )

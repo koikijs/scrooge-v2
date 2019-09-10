@@ -12,11 +12,11 @@ import java.lang.RuntimeException
 class EventRepository(
     private val template: ReactiveMongoTemplate
 ) {
-    suspend fun create(event: Event): Event = template.insert(Event::class.java).oneAndAwait(event)
+    suspend fun create(eventDoc: EventDoc): EventDoc = template.insert(EventDoc::class.java).oneAndAwait(eventDoc)
 
-    suspend fun findById(id: String): Event =
-        template.query(Event::class.java)
-            .matching(Query(Event::id isEqualTo id))
+    suspend fun findById(id: String): EventDoc =
+        template.query(EventDoc::class.java)
+            .matching(Query(EventDoc::id isEqualTo id))
             .awaitOneOrNull()
             ?: throw RuntimeException("")
 }

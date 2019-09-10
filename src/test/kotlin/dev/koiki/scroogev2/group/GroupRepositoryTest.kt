@@ -19,7 +19,7 @@ internal class GroupRepositoryTest {
 
     @Test
     fun addMemberNameById() = runBlocking {
-        val a = groupRepository.create(Group(
+        val a = groupRepository.create(GroupDoc(
             eventId = "xxx",
             name = "testA",
             memberNames = listOf("ninja"),
@@ -27,7 +27,7 @@ internal class GroupRepositoryTest {
             updatedAt = LocalDateTime.now()
         ))
 
-        val b = groupRepository.create(Group(
+        val b = groupRepository.create(GroupDoc(
             eventId = "xxx",
             name = "testB",
             memberNames = listOf("nabnab"),
@@ -48,7 +48,7 @@ internal class GroupRepositoryTest {
 
     @Test
     fun deleteMemberNameById() = runBlocking {
-        val a = groupRepository.create(Group(
+        val a = groupRepository.create(GroupDoc(
             eventId = "xxx",
             name = "testA",
             memberNames = listOf("ninja", "duke"),
@@ -56,7 +56,7 @@ internal class GroupRepositoryTest {
             updatedAt = LocalDateTime.now()
         ))
 
-        val b = groupRepository.create(Group(
+        val b = groupRepository.create(GroupDoc(
             eventId = "xxx",
             name = "testB",
             memberNames = listOf("nabnab", "ninja"),
@@ -77,7 +77,7 @@ internal class GroupRepositoryTest {
 
     @Test
     fun updateNameById() = runBlocking {
-        val a = groupRepository.create(Group(
+        val a = groupRepository.create(GroupDoc(
             eventId = "xxx",
             name = "testA",
             memberNames = listOf("ninja", "duke"),
@@ -85,7 +85,7 @@ internal class GroupRepositoryTest {
             updatedAt = LocalDateTime.now()
         ))
 
-        val b = groupRepository.create(Group(
+        val b = groupRepository.create(GroupDoc(
             eventId = "xxx",
             name = "testB",
             memberNames = listOf("nabnab", "ninja"),
@@ -106,7 +106,7 @@ internal class GroupRepositoryTest {
 
     @Test
     fun deleteById() = runBlocking {
-        val a = groupRepository.create(Group(
+        val a = groupRepository.create(GroupDoc(
             eventId = "xxx",
             name = "testA",
             memberNames = listOf("ninja", "duke"),

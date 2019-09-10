@@ -22,7 +22,7 @@ internal class ScroogeRepositoryTest {
     @Test
     @FlowPreview
     fun deleteById() = runBlocking {
-        scroogeRepository.create(Scrooge(
+        scroogeRepository.create(ScroogeDoc(
             groupId = "groupA",
             memberName = "ninja",
             paidAmount = BigDecimal.TEN,
@@ -30,7 +30,7 @@ internal class ScroogeRepositoryTest {
             forWhat = "bla bla"
         ))
 
-        scroogeRepository.create(Scrooge(
+        scroogeRepository.create(ScroogeDoc(
             groupId = "groupA",
             memberName = "nab",
             paidAmount = BigDecimal.ONE,
@@ -38,7 +38,7 @@ internal class ScroogeRepositoryTest {
             forWhat = "bla bla"
         ))
 
-        scroogeRepository.create(Scrooge(
+        scroogeRepository.create(ScroogeDoc(
             groupId = "groupB",
             memberName = "ninja",
             paidAmount = BigDecimal.TEN,

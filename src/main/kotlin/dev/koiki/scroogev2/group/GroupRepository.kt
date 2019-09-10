@@ -14,42 +14,42 @@ import org.springframework.stereotype.Component
 class GroupRepository(
     private val template: ReactiveMongoTemplate
 ) {
-    suspend fun findById(id: String): Group =
-        template.query(Group::class.java)
-            .matching(Query(Group::id isEqualTo id))
+    suspend fun findById(id: String): GroupDoc =
+        template.query(GroupDoc::class.java)
+            .matching(Query(GroupDoc::id isEqualTo id))
             .awaitOneOrNull()
             ?: throw RuntimeException("")
 
     @FlowPreview
-    suspend fun findByEventId(eventId: String): Flow<Group> =
-        template.query(Group::class.java)
-            .matching(Query(Group::eventId isEqualTo eventId))
+    suspend fun findByEventId(eventId: String): Flow<GroupDoc> =
+        template.query(GroupDoc::class.java)
+            .matching(Query(GroupDoc::eventId isEqualTo eventId))
             .flow()
 
-    suspend fun create(group: Group): Group =
-        template.insert(Group::class.java)
-            .oneAndAwait(group)
+    suspend fun create(groupDoc: GroupDoc): GroupDoc =
+        template.insert(GroupDoc::class.java)
+            .oneAndAwait(groupDoc)
 
     suspend fun addMemberNameById(id: String, memberName: String): UpdateResult =
-        template.update(Group::class.java)
-            .matching(Query(Group::id isEqualTo id))
+        template.update(GroupDoc::class.java)
+            .matching(Query(GroupDoc::id isEqualTo id))
             .apply(Update().push("memberNames").value(memberName))
             .firstAndAwait()
 
     suspend fun removeMemberNameById(id: String, memberName: String): UpdateResult =
-        template.update(Group::class.java)
-            .matching(Query(Group::id isEqualTo id))
+        template.update(GroupDoc::class.java)
+            .matching(Query(GroupDoc::id isEqualTo id))
             .apply(Update().pull("memberNames", memberName))
             .firstAndAwait()
 
     suspend fun updateNameById(id: String, name: String): UpdateResult =
-        template.update(Group::class.java)
-            .matching(Query(Group::id isEqualTo id))
+        template.update(GroupDoc::class.java)
+            .matching(Query(GroupDoc::id isEqualTo id))
             .apply(Update().set("name", name))
             .firstAndAwait()
 
     suspend fun deleteById(id: String): DeleteResult =
-        template.remove(Group::class.java)
-            .matching(Query(Group::id isEqualTo id))
+        template.remove(GroupDoc::class.java)
+            .matching(Query(GroupDoc::id isEqualTo id))
             .allAndAwait()
 }

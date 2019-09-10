@@ -1,7 +1,6 @@
 package dev.koiki.scroogev2.transferamount
 
 import dev.koiki.scroogev2.scrooge.Scrooge
-import dev.koiki.scroogev2.scrooge.ScroogeRes
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -124,8 +123,8 @@ internal class TransferAmountFactoryTest {
             ))
     }
 
-    private fun scrooge(memberName: String, paidAmount: BigDecimal): ScroogeRes =
-        ScroogeRes(
+    private fun scrooge(memberName: String, paidAmount: BigDecimal): Scrooge =
+        Scrooge(
             memberName = memberName,
             paidAmount = paidAmount,
             forWhat = "",

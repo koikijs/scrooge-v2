@@ -1,10 +1,13 @@
 package dev.koiki.scroogev2.scrooge
 
+import org.springframework.data.mongodb.core.mapping.Document
 import java.math.BigDecimal
 import java.util.*
 
-data class Scrooge(
-    val id: String,
+@Document("scrooge")
+data class ScroogeDoc(
+    val id: String? = null,
+    val groupId: String,
     val memberName: String,
     val paidAmount: BigDecimal,
     val currency: Currency,

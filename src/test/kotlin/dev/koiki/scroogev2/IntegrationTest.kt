@@ -1,13 +1,13 @@
 package dev.koiki.scroogev2
 
 import dev.koiki.scroogev2.event.EventCreateReq
-import dev.koiki.scroogev2.event.EventRes
+import dev.koiki.scroogev2.event.Event
 import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupMemberNameReq
 import dev.koiki.scroogev2.group.GroupNameReq
-import dev.koiki.scroogev2.group.GroupRes
+import dev.koiki.scroogev2.group.Group
 import dev.koiki.scroogev2.scrooge.ScroogeAddReq
-import dev.koiki.scroogev2.scrooge.ScroogeRes
+import dev.koiki.scroogev2.scrooge.Scrooge
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -42,12 +42,12 @@ class IntegrationTest {
             transferCurrency = Currency.getInstance("JPY")
         )
 
-        val res: EventRes = webTestClient.post()
+        val res: Event = webTestClient.post()
             .uri("/events/_create")
             .body(requestBody)
             .exchange()
             .expectStatus().isCreated
-            .expectBody<EventRes>()
+            .expectBody<Event>()
             .returnResult()
             .responseBody ?: throw RuntimeException("response body is null")
 
@@ -70,7 +70,7 @@ class IntegrationTest {
             .expectStatus().isCreated
             .expectBody().isEmpty
 
-        val event: EventRes = fetchEvent(testId.eventId)
+        val event: Event = fetchEvent(testId.eventId)
 
         assertThat(event.groups).hasSize(2)
         assertThat(event.groups[1].name).isEqualTo("ADD")
@@ -106,7 +106,7 @@ class IntegrationTest {
         // confirm addition of scrooge
         var event = fetchEvent(testId.eventId)
         assertThat(event.groups[0].scrooges[0])
-            .isEqualToIgnoringGivenFields(ScroogeRes(
+            .isEqualToIgnoringGivenFields(Scrooge(
                 id = "xxx",
                 memberName = "ninja",
                 paidAmount = BigDecimal.TEN,
@@ -186,13 +186,13 @@ class IntegrationTest {
             transferCurrency = Currency.getInstance("JPY")
         )
 
-        val expectedBody = EventRes(
+        val expectedBody = Event(
             id = "xxx",
             name = "Camp 2019",
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             groups = listOf(
-                GroupRes(
+                Group(
                     id = "xxx",
                     name = "Camp 2019",
                     memberNames = listOf(),
@@ -210,7 +210,7 @@ class IntegrationTest {
             .body(requestBody)
             .exchange()
             .expectStatus().isCreated
-            .expectBody<EventRes>()
+            .expectBody<Event>()
             .consumeWith {
                 assertThat(it.responseBody)
                     .isEqualToIgnoringGivenFields(expectedBody,
@@ -236,12 +236,12 @@ class IntegrationTest {
         assertThat(event.groups).isEmpty()
     }
 
-    fun fetchEvent(eventId: String): EventRes =
+    fun fetchEvent(eventId: String): Event =
         webTestClient.get()
             .uri("/events/$eventId")
             .exchange()
             .expectStatus().isOk
-            .expectBody<EventRes>()
+            .expectBody<Event>()
             .returnResult()
             .responseBody
             ?: throw RuntimeException("response body is null")

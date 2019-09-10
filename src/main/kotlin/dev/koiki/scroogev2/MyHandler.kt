@@ -1,7 +1,7 @@
 package dev.koiki.scroogev2
 
 import dev.koiki.scroogev2.event.EventCreateReq
-import dev.koiki.scroogev2.event.EventRes
+import dev.koiki.scroogev2.event.Event
 import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupMemberNameReq
 import dev.koiki.scroogev2.group.GroupNameReq
@@ -20,11 +20,11 @@ class MyHandler(
     suspend fun createEvent(request: ServerRequest): ServerResponse {
         val req: EventCreateReq = request.awaitBody()
 
-        val eventRes: EventRes = myService.createEvent(req)
+        val event: Event = myService.createEvent(req)
 
         return ServerResponse
             .status(CREATED)
-            .bodyAndAwait(eventRes)
+            .bodyAndAwait(event)
     }
 
     @FlowPreview
@@ -42,8 +42,8 @@ class MyHandler(
         val eventId = request.pathVariable("eventId")
         val req: GroupAddReq = request.awaitBody()
 
-        val eventRes: EventRes = myService.addGroup(eventId, req)
-        myWebSocketHandler.publishMessage(eventRes)
+        val event: Event = myService.addGroup(eventId, req)
+        myWebSocketHandler.publishMessage(event)
 
         return ServerResponse
             .status(CREATED)
@@ -54,8 +54,8 @@ class MyHandler(
         val groupId = request.pathVariable("groupId")
         val req: ScroogeAddReq = request.awaitBody()
 
-        val eventRes: EventRes = myService.addScrooge(groupId, req)
-        myWebSocketHandler.publishMessage(eventRes)
+        val event: Event = myService.addScrooge(groupId, req)
+        myWebSocketHandler.publishMessage(event)
 
         return ServerResponse
             .status(CREATED)
@@ -66,8 +66,8 @@ class MyHandler(
         val groupId = request.pathVariable("groupId")
         val req: GroupNameReq = request.awaitBody()
 
-        val eventRes: EventRes = myService.updateGroupName(groupId, req)
-        myWebSocketHandler.publishMessage(eventRes)
+        val event: Event = myService.updateGroupName(groupId, req)
+        myWebSocketHandler.publishMessage(event)
 
         return ServerResponse
             .status(NO_CONTENT)
@@ -78,8 +78,8 @@ class MyHandler(
         val groupId = request.pathVariable("groupId")
         val req: GroupMemberNameReq = request.awaitBody()
 
-        val eventRes: EventRes = myService.addGroupMemberName(groupId, req)
-        myWebSocketHandler.publishMessage(eventRes)
+        val event: Event = myService.addGroupMemberName(groupId, req)
+        myWebSocketHandler.publishMessage(event)
 
         return ServerResponse
             .status(NO_CONTENT)
@@ -90,8 +90,8 @@ class MyHandler(
         val groupId = request.pathVariable("groupId")
         val req: GroupMemberNameReq = request.awaitBody()
 
-        val eventRes: EventRes = myService.removeGroupMemberName(groupId, req)
-        myWebSocketHandler.publishMessage(eventRes)
+        val event: Event = myService.removeGroupMemberName(groupId, req)
+        myWebSocketHandler.publishMessage(event)
 
         return ServerResponse
             .status(NO_CONTENT)
@@ -101,8 +101,8 @@ class MyHandler(
     suspend fun deleteGroup(request: ServerRequest): ServerResponse {
         val groupId = request.pathVariable("groupId")
 
-        val eventRes: EventRes = myService.deleteGroup(groupId)
-        myWebSocketHandler.publishMessage(eventRes)
+        val event: Event = myService.deleteGroup(groupId)
+        myWebSocketHandler.publishMessage(event)
 
         return ServerResponse
             .status(NO_CONTENT)
@@ -112,8 +112,8 @@ class MyHandler(
     suspend fun deleteScrooge(request: ServerRequest): ServerResponse {
         val scroogeId = request.pathVariable("scroogeId")
 
-        val eventRes: EventRes = myService.deleteScrooge(scroogeId)
-        myWebSocketHandler.publishMessage(eventRes)
+        val event: Event = myService.deleteScrooge(scroogeId)
+        myWebSocketHandler.publishMessage(event)
 
         return ServerResponse
             .status(NO_CONTENT)

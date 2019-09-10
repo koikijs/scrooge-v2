@@ -1,7 +1,7 @@
 package dev.koiki.scroogev2
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.koiki.scroogev2.event.EventRes
+import dev.koiki.scroogev2.event.Event
 import kotlinx.coroutines.FlowPreview
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -28,11 +28,11 @@ class MyWebSocketHandler(
     private val sessionPoolMap = ConcurrentHashMap<String, CopyOnWriteArraySet<WebSocketSession>>()
 
     @FlowPreview
-    suspend fun publishMessage(eventRes: EventRes) {
-        val eventResJsonString: String = mapper.writeValueAsString(eventRes)
+    suspend fun publishMessage(event: Event) {
+        val eventResJsonString: String = mapper.writeValueAsString(event)
 
         log.debug("start sending a message")
-        sessionPoolMap[eventRes.id]?.forEach {
+        sessionPoolMap[event.id]?.forEach {
             it.send(Mono.just(it.textMessage(eventResJsonString))).subscribe()
         }
     }

@@ -2,7 +2,7 @@ package dev.koiki.scroogev2
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.koiki.scroogev2.event.EventCreateReq
-import dev.koiki.scroogev2.event.EventRes
+import dev.koiki.scroogev2.event.Event
 import dev.koiki.scroogev2.group.GroupAddReq
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
@@ -41,7 +41,7 @@ class WebSocketSimpleIntegrationTest(
         /**
          * (1) create an event
          */
-        val res: EventRes = webTestClient.post()
+        val res: Event = webTestClient.post()
             .uri("/events/_create")
             .body(EventCreateReq(
                 name = "test",
@@ -49,7 +49,7 @@ class WebSocketSimpleIntegrationTest(
             ))
             .exchange()
             .expectStatus().is2xxSuccessful
-            .expectBody<EventRes>()
+            .expectBody<Event>()
             .returnResult()
             .responseBody ?: throw RuntimeException("response body is null")
 
@@ -88,7 +88,7 @@ class WebSocketSimpleIntegrationTest(
             },
             {
                 assertThatCode {
-                    mapper.readValue(receivedMessages[0], EventRes::class.java)
+                    mapper.readValue(receivedMessages[0], Event::class.java)
                 }.doesNotThrowAnyException()
             }
         )

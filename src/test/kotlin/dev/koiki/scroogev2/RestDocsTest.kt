@@ -1,7 +1,7 @@
 package dev.koiki.scroogev2
 
 import dev.koiki.scroogev2.event.EventCreateReq
-import dev.koiki.scroogev2.event.EventRes
+import dev.koiki.scroogev2.event.Event
 import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupMemberNameReq
 import dev.koiki.scroogev2.group.GroupNameReq
@@ -52,7 +52,7 @@ class RestDocsTest(
                 transferCurrency = Currency.getInstance("JPY")
             ))
             .exchange()
-            .expectBody<EventRes>()
+            .expectBody<Event>()
             .returnResult()
             .responseBody ?: throw RuntimeException("response body is null")
 
@@ -90,7 +90,7 @@ class RestDocsTest(
             .get()
             .uri("/events/${event.id}")
             .exchange()
-            .expectBody<EventRes>()
+            .expectBody<Event>()
             .returnResult()
             .responseBody ?: throw RuntimeException("response body is null")
 

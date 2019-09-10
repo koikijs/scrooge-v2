@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dev.koiki</groupId>
-	<artifactId>scrooge-v2</artifactId>
+	<artifactId>scroogeDoc-v2</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>scrooge-v2</name>
-	<description>scrooge API for kyoden</description>
+	<name>scroogeDoc-v2</name>
+	<description>scroogeDoc API for kyoden</description>
 
 	<properties>
 		<java.version>1.8</java.version>
