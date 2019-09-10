@@ -9,6 +9,11 @@ import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.reactive.config.CorsRegistry
 import org.springframework.web.reactive.config.WebFluxConfigurer
 import org.springframework.web.reactive.config.EnableWebFlux
+import org.springframework.web.cors.reactive.CorsWebFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
+import java.util.*
+
 
 @FlowPreview
 @Configuration
@@ -37,6 +42,24 @@ class MyRouter(val handler: MyHandler) {
 }
 
 @Configuration
+class CorsConfig {
+    @Bean
+    fun corsWebFilter(): CorsWebFilter {
+        val corsConfig = CorsConfiguration()
+        corsConfig.allowedOrigins = Arrays.asList("https://kyoden.now.sh", "http://localhost:3000")
+        corsConfig.maxAge = 8000L
+        corsConfig.addAllowedMethod("*")
+        corsConfig.allowedHeaders = listOf("Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location")
+        corsConfig.exposedHeaders = listOf("Cache-Control", "Content-Language", "Content-Type", "Expires", "Last-Modified", "Pragma", "Location")
+        corsConfig.allowCredentials = true
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", corsConfig)
+
+        return CorsWebFilter(source)
+    }
+}
+
+//@Configuration
 class MyCorsConfig : WebFluxConfigurer {
 
     override fun addCorsMappings(corsRegistry: CorsRegistry) {
