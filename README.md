@@ -1,11 +1,11 @@
-# scroogeDoc-v2
+# scrooge-v2
 ## Docs
-https://koiki-scroogeDoc-v2.herokuapp.com/docs/index.html 
+https://koiki-scrooge-v2.herokuapp.com/docs/index.html 
 
 ## Heroku
 ```
-heroku config:set MAVEN_CUSTOM_GOALS="clean package" --app koiki-scroogeDoc-v2
-heroku config:set MAVEN_CUSTOM_OPTS="-DskipTests=false" --app koiki-scroogeDoc-v2
+heroku config:set MAVEN_CUSTOM_GOALS="clean package" --app koiki-scrooge-v2
+heroku config:set MAVEN_CUSTOM_OPTS="-DskipTests=false" --app koiki-scrooge-v2
 ```
 - [Heroku buildpack for Java](https://github.com/heroku/heroku-buildpack-java)
 

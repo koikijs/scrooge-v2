@@ -2,7 +2,11 @@ package dev.koiki.scroogev2
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.koiki.scroogev2.event.Event
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -20,15 +24,16 @@ import reactor.core.publisher.Mono
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArraySet
 
+@FlowPreview
 @Component
 class MyWebSocketHandler(
+    private val myService: MyService,
     private val mapper: ObjectMapper
 ) : WebSocketHandler {
     private val log = LoggerFactory.getLogger(this::class.java)
     private val sessionPoolMap = ConcurrentHashMap<String, CopyOnWriteArraySet<WebSocketSession>>()
 
-    @FlowPreview
-    suspend fun publishMessage(event: Event) {
+    fun publishMessage(event: Event) {
         val eventResJsonString: String = mapper.writeValueAsString(event)
 
         log.debug("start sending a message")
@@ -42,16 +47,25 @@ class MyWebSocketHandler(
         log.debug("session established, sessionId: ${session.id}, eventId: $eventId")
         addSessionToPool(eventId, session)
 
-        return session.receive()
+        // this handle(..) method does not belong to coroutine scope
+        // so we can't invoke suspend function from here.
+        return mono { myService.readEvent(eventId) }
             .doOnNext {
-                val payload = it.payloadAsText
-                log.debug("message comes, sessionId: ${session.id}, message: $payload")
+                log.debug("sending an initial message")
+                session.send(Mono.just(session.textMessage(mapper.writeValueAsString(it)))).subscribe()
             }
-            .doFinally {
-                log.debug("terminated, sessionId: ${session.id}")
-                removeSessionFromPool(eventId, session)
+            .and {
+                session.receive()
+                    .doOnNext {
+                        val payload = it.payloadAsText
+                        log.debug("message comes, sessionId: ${session.id}, message: $payload")
+                    }
+                    .doFinally {
+                        log.debug("terminated, sessionId: ${session.id}")
+                        removeSessionFromPool(eventId, session)
+                    }
+                    .then()
             }
-            .then()
     }
 
     private fun addSessionToPool(eventId: String, session: WebSocketSession) {

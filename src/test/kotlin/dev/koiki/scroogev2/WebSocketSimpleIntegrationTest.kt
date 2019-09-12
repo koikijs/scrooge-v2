@@ -1,8 +1,8 @@
 package dev.koiki.scroogev2
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.Event
+import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.group.GroupAddReq
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
@@ -18,6 +18,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.web.reactive.function.BodyInserters.fromObject
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient
 import reactor.core.publisher.ReplayProcessor
 import java.lang.Thread.sleep
@@ -43,10 +44,10 @@ class WebSocketSimpleIntegrationTest(
          */
         val res: Event = webTestClient.post()
             .uri("/events/_create")
-            .body(EventCreateReq(
+            .body(fromObject(EventCreateReq(
                 name = "test",
                 transferCurrency = Currency.getInstance("JPY")
-            ))
+            )))
             .exchange()
             .expectStatus().is2xxSuccessful
             .expectBody<Event>()
@@ -60,9 +61,9 @@ class WebSocketSimpleIntegrationTest(
             sleep(2_000)
             webTestClient.post()
                 .uri("/events/${res.id}/groups/_add")
-                .body(GroupAddReq(
+                .body(fromObject(GroupAddReq(
                     name = "ADD"
-                ))
+                )))
                 .exchange()
                 .expectStatus().is2xxSuccessful
         }
@@ -70,7 +71,7 @@ class WebSocketSimpleIntegrationTest(
         /**
          * (3) wait for webSocket messages, and it will come after 2 sec
          */
-        val retrieveCnt = 1
+        val retrieveCnt = 2
         val output: ReplayProcessor<String> = ReplayProcessor.create(retrieveCnt)
         ReactorNettyWebSocketClient().execute(URI("ws://localhost:$port/events?${res.id}")) {
             it.receive()
@@ -84,11 +85,16 @@ class WebSocketSimpleIntegrationTest(
 
         assertAll(
             {
-                assertThat(receivedMessages).hasSize(1)
+                assertThat(receivedMessages).hasSize(2)
             },
             {
                 assertThatCode {
                     mapper.readValue(receivedMessages[0], Event::class.java)
+                }.doesNotThrowAnyException()
+            },
+            {
+                assertThatCode {
+                    mapper.readValue(receivedMessages[1], Event::class.java)
                 }.doesNotThrowAnyException()
             }
         )

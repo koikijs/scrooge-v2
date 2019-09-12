@@ -1,13 +1,13 @@
 package dev.koiki.scroogev2
 
-import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.Event
+import dev.koiki.scroogev2.event.EventCreateReq
+import dev.koiki.scroogev2.group.Group
 import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupMemberNameReq
 import dev.koiki.scroogev2.group.GroupNameReq
-import dev.koiki.scroogev2.group.Group
-import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import dev.koiki.scroogev2.scrooge.Scrooge
+import dev.koiki.scroogev2.scrooge.ScroogeAddReq
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.web.reactive.function.BodyInserters.fromObject
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
@@ -44,7 +45,7 @@ class IntegrationTest {
 
         val res: Event = webTestClient.post()
             .uri("/events/_create")
-            .body(requestBody)
+            .body(fromObject(requestBody))
             .exchange()
             .expectStatus().isCreated
             .expectBody<Event>()
@@ -65,7 +66,7 @@ class IntegrationTest {
 
         webTestClient.post()
             .uri("/events/${testId.eventId}/groups/_add")
-            .body(requestBody)
+            .body(fromObject(requestBody))
             .exchange()
             .expectStatus().isCreated
             .expectBody().isEmpty
@@ -83,7 +84,7 @@ class IntegrationTest {
         )
         webTestClient.patch()
             .uri("/groups/${testId.groupId}/_addMemberName")
-            .body(groupMemberNameReq)
+            .body(fromObject(groupMemberNameReq))
             .exchange()
             .expectStatus().isNoContent
             .expectBody().isEmpty
@@ -98,7 +99,7 @@ class IntegrationTest {
 
         webTestClient.post()
             .uri("/groups/${testId.groupId}/scrooges")
-            .body(scroogeAddReq)
+            .body(fromObject(scroogeAddReq))
             .exchange()
             .expectStatus().isCreated
             .expectBody().isEmpty
@@ -129,18 +130,18 @@ class IntegrationTest {
     fun `add member to group and remove member from group`() {
         webTestClient.patch()
             .uri("/groups/${testId.groupId}/_addMemberName")
-            .body(GroupMemberNameReq(
+            .body(fromObject(GroupMemberNameReq(
                 memberName = "ninja"
-            ))
+            )))
             .exchange()
             .expectStatus().isNoContent
             .expectBody().isEmpty
 
         webTestClient.patch()
             .uri("/groups/${testId.groupId}/_addMemberName")
-            .body(GroupMemberNameReq(
+            .body(fromObject(GroupMemberNameReq(
                 memberName = "nabnab"
-            ))
+            )))
             .exchange()
             .expectStatus().isNoContent
             .expectBody().isEmpty
@@ -150,9 +151,9 @@ class IntegrationTest {
 
         webTestClient.patch()
             .uri("/groups/${testId.groupId}/_removeMemberName")
-            .body(GroupMemberNameReq(
+            .body(fromObject(GroupMemberNameReq(
                 memberName = "ninja"
-            ))
+            )))
             .exchange()
             .expectStatus().isNoContent
             .expectBody().isEmpty
@@ -169,7 +170,7 @@ class IntegrationTest {
 
         webTestClient.patch()
             .uri("/groups/${testId.groupId}/_updateName")
-            .body(requestBody)
+            .body(fromObject(requestBody))
             .exchange()
             .expectStatus().isNoContent
             .expectBody().isEmpty
@@ -207,7 +208,7 @@ class IntegrationTest {
 
         webTestClient.post()
             .uri("/events/_create")
-            .body(requestBody)
+            .body(fromObject(requestBody))
             .exchange()
             .expectStatus().isCreated
             .expectBody<Event>()

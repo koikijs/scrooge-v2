@@ -1,7 +1,7 @@
 package dev.koiki.scroogev2
 
-import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.event.Event
+import dev.koiki.scroogev2.event.EventCreateReq
 import dev.koiki.scroogev2.group.GroupAddReq
 import dev.koiki.scroogev2.group.GroupMemberNameReq
 import dev.koiki.scroogev2.group.GroupNameReq
@@ -21,6 +21,7 @@ import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.web.reactive.function.BodyInserters.fromObject
 import java.math.BigDecimal
 import java.util.*
 
@@ -47,10 +48,10 @@ class RestDocsTest(
         val event = this.webTestClient
             .post()
             .uri("/events/_create")
-            .body(EventCreateReq(
+            .body(fromObject(EventCreateReq(
                 name = "Koiki Camp",
                 transferCurrency = Currency.getInstance("JPY")
-            ))
+            )))
             .exchange()
             .expectBody<Event>()
             .returnResult()
@@ -59,30 +60,30 @@ class RestDocsTest(
         this.webTestClient
             .patch()
             .uri("/groups/${event.groups[0].id}/_addMemberName")
-            .body(GroupMemberNameReq(
+            .body(fromObject(GroupMemberNameReq(
                 memberName = "Ninja"
-            ))
+            )))
             .exchange()
             .expectStatus().is2xxSuccessful
 
         this.webTestClient
             .patch()
             .uri("/groups/${event.groups[0].id}/_addMemberName")
-            .body(GroupMemberNameReq(
+            .body(fromObject(GroupMemberNameReq(
                 memberName = "Nabnab"
-            ))
+            )))
             .exchange()
             .expectStatus().is2xxSuccessful
 
         this.webTestClient
             .post()
             .uri("/groups/${event.groups[0].id}/scrooges")
-            .body(ScroogeAddReq(
+            .body(fromObject(ScroogeAddReq(
                 memberName = "Ninja",
                 paidAmount = BigDecimal("1100"),
                 currency = Currency.getInstance("JPY"),
                 forWhat = "rent-a-car"
-            ))
+            )))
             .exchange()
             .expectStatus().is2xxSuccessful
 
@@ -106,10 +107,10 @@ class RestDocsTest(
         this.webTestClient
             .post()
             .uri("/events/_create")
-            .body(EventCreateReq(
+            .body(fromObject(EventCreateReq(
                 name = "Koiki Camp",
                 transferCurrency = Currency.getInstance("JPY")
-            ))
+            )))
             .exchange()
             .expectStatus().isCreated
             .expectBody()
@@ -139,9 +140,9 @@ class RestDocsTest(
         this.webTestClient
             .post()
             .uri("/events/${testId.eventId}/groups/_add")
-            .body(GroupAddReq(
+            .body(fromObject(GroupAddReq(
                 name = "Scuba diving"
-            ))
+            )))
             .exchange()
             .expectStatus().is2xxSuccessful
             .expectBody()
@@ -158,9 +159,9 @@ class RestDocsTest(
         this.webTestClient
             .patch()
             .uri("/groups/${testId.groupId}/_updateName")
-            .body(GroupNameReq(
+            .body(fromObject(GroupNameReq(
                 name = "BBQ"
-            ))
+            )))
             .exchange()
             .expectStatus().is2xxSuccessful
             .expectBody()
@@ -188,9 +189,9 @@ class RestDocsTest(
         this.webTestClient
             .patch()
             .uri("/groups/${testId.groupId}/_addMemberName")
-            .body(GroupMemberNameReq(
+            .body(fromObject(GroupMemberNameReq(
                 memberName = "Ninja"
-            ))
+            )))
             .exchange()
             .expectStatus().is2xxSuccessful
             .expectBody()
@@ -207,9 +208,9 @@ class RestDocsTest(
         this.webTestClient
             .patch()
             .uri("/groups/${testId.groupId}/_removeMemberName")
-            .body(GroupMemberNameReq(
+            .body(fromObject(GroupMemberNameReq(
                 memberName = "Ninja"
-            ))
+            )))
             .exchange()
             .expectStatus().is2xxSuccessful
             .expectBody()
@@ -226,12 +227,12 @@ class RestDocsTest(
         this.webTestClient
             .post()
             .uri("/groups/${testId.groupId}/scrooges")
-            .body(ScroogeAddReq(
+            .body(fromObject(ScroogeAddReq(
                 memberName = "Ninja",
                 paidAmount = BigDecimal("11000"),
                 currency = Currency.getInstance("JPY"),
                 forWhat = "parking"
-            ))
+            )))
             .exchange()
             .expectStatus().is2xxSuccessful
             .expectBody()
