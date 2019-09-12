@@ -38,7 +38,12 @@ class MyWebSocketHandler(
 
         log.debug("start sending a message")
         sessionPoolMap[event.id]?.forEach {
-            it.send(Mono.just(it.textMessage(eventResJsonString))).subscribe()
+            try {
+                it.send(Mono.just(it.textMessage(eventResJsonString))).subscribe()
+            } catch (e: Exception) {
+                log.warn("sending a message failed, class: ${e.javaClass}, message: ${e.message}")
+                removeSessionFromPool(event.id, it)
+            }
         }
     }
 
